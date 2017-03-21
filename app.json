@@ -1,0 +1,21 @@
+{
+  "name": "search-payment-practices",
+  "scripts": {
+  },
+  "env": {
+    "API_HOST": "mocked",
+    "COMPANIES_HOUSE_API_KEY": "mocked",
+    "MOCK_COMPANY_SEARCH": "true"
+  },
+  "formation": {
+  },
+  "addons": [
+    "papertrail",
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/scala"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+@(prefix: String, day: Option[String], month: Option[String], year: Option[String])
+
+@defining(prefix + ".day") { fieldName =>
+    <div class="input-float-left">
+        <label class="form-label" for='@fieldName'>Day</label>
+        <input class="form-control form-control-number" type="number" id='@fieldName' name='@fieldName' value="@day"/>
+    </div>
+}
+@defining(prefix + ".month") { fieldName =>
+    <div class="input-float-left">
+        <label class="form-label" for='@fieldName'>Month</label>
+        <input class="form-control form-control-number" type="number" id='@fieldName' name='@fieldName' value="@month" />
+    </div>
+}
+@defining(prefix + ".year") { fieldName =>
+    <div class="input-float-left wide">
+        <label class="form-label" for='@fieldName'>Year</label>
+        <input class="form-control form-control-number" type="number" id='@fieldName' name='@fieldName' value="@year"/>
+    </div>
+}
+
+<div style="clear: both"></div>
