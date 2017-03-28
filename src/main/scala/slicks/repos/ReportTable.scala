@@ -24,7 +24,7 @@ import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
-import services.{FiledReport, Report, ReportService}
+import services.{FiledReport, ReportService}
 import slicks.DBBinding
 import slicks.modules.ReportModule
 
@@ -47,7 +47,7 @@ class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implic
     filedReportByIdC(id).result.headOption.map(_.map(FiledReport.tupled))
   }
 
-  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = filedReportQuery.filter(_._1.companyId === cono)
+  def reportByCoNoQ(companiesHouseId: Rep[CompaniesHouseId]) = filedReportQuery.filter(_._1.companyId === companiesHouseId)
 
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 

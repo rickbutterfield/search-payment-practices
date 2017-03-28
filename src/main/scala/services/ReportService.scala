@@ -19,7 +19,6 @@ package services
 
 import com.google.inject.ImplementedBy
 import dbrows._
-import forms.report.{ReportFormModel, ReportReviewModel}
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
@@ -62,7 +61,8 @@ case class FiledReport(
 trait ReportService {
   def findFiled(id: ReportId): Future[Option[FiledReport]]
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[FiledReport]]
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
 
   def list(cutoffDate: LocalDate): Publisher[FiledReport]
+
 }

@@ -16,28 +16,31 @@
  */
 
 import com.google.inject.AbstractModule
-import config.{AppConfig, MockConfig}
+import config._
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.{Configuration, Environment, Logger}
 import services._
 import services.live.CompaniesHouseSearch
 import services.mocks.MockCompanySearch
-import slicks.modules.DB
 
 class Module(environment: Environment, configuration: Configuration) extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
 
-    val appConfig = new AppConfig(configuration)
+    val config = new AppConfig(configuration).config
 
-    val mockConfig = appConfig.config.mockConfig.getOrElse(MockConfig.empty)
+    config.companiesHouse match {
+      case Some(ch) =>
+        bind(classOf[CompaniesHouseConfig]).toInstance(ch)
+        bind(classOf[CompanySearchService]).to(classOf[CompaniesHouseSearch])
+      case None =>
+        Logger.debug("Wiring in Company Search Mock")
+        bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
+    }
 
-    val searchImpl = if (mockConfig.mockCompanySearch.getOrElse(false)) {
-      Logger.debug("Wiring in Company Search Mock")
-      classOf[MockCompanySearch]
-    } else classOf[CompaniesHouseSearch]
-    bind(classOf[CompanySearchService]).to(searchImpl)
+    bind(classOf[GoogleAnalyticsConfig])
+      .toInstance(config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
 
-
-    bind(classOf[DB]).asEagerSingleton()
+    bind(classOf[ServiceConfig])
+      .toInstance(config.service.getOrElse(ServiceConfig.empty))
   }
 }

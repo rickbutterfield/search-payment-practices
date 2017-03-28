@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
-import config.AppConfig
+import config.GoogleAnalyticsConfig
 import models.{CompaniesHouseId, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 class SearchController @Inject()(
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val appConfig: AppConfig)(implicit val ec: ExecutionContext)
+                                  val googleAnalytics: GoogleAnalyticsConfig)(implicit val ec: ExecutionContext)
   extends Controller
     with PageHelper
     with SearchHelper {
@@ -49,7 +49,7 @@ class SearchController @Inject()(
 
   def companyLink(id: CompaniesHouseId, pageNumber: Option[Int]) = routes.SearchController.company(id, pageNumber).url
 
-  def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = ???
+  def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.SearchController.search(query, Some(pageNumber), itemsPerPage).url
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
@@ -62,7 +62,7 @@ class SearchController @Inject()(
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
       co <- OptionT(companySearch.find(companiesHouseId))
-      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs, pageNumber.getOrElse(1))))
+      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)

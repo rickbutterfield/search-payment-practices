@@ -17,44 +17,60 @@
 
 package config
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 
 import scala.util.Try
 
 case class CompaniesHouseConfig(apiKey: String)
 
-case class CompanySearchAPIConfig(id: String, secret: String)
+case class GoogleAnalyticsConfig(code: Option[String])
 
-case class GoogleAnalytics(code: Option[String])
+object GoogleAnalyticsConfig {
+  val empty = GoogleAnalyticsConfig(None)
+}
 
-case class MockConfig(mockCompanySearch: Option[Boolean])
+case class ServiceConfig(startDate: Option[LocalDate])
 
-
-object MockConfig {
-  val empty = MockConfig(None)
+object ServiceConfig {
+  val empty = ServiceConfig(None)
+  val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
 case class Config(
-                   companiesHouse: CompaniesHouseConfig,
-                   googleAnalytics: Option[GoogleAnalytics],
+                   service: Option[ServiceConfig],
+                   companiesHouse: Option[CompaniesHouseConfig],
+                   googleAnalytics: Option[GoogleAnalyticsConfig],
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean],
-                   mockConfig: Option[MockConfig]
+                   printDBTables: Option[Boolean]
                  )
 
+@Singleton
 class AppConfig @Inject()(configuration: Configuration) {
-
   val df = DateTimeFormat.forPattern("yyyy-M-d")
 
   import pureconfig._
   import ConfigConvert._
 
-  implicit val localDateConvert = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
+  private def load[T: ConfigConvert](path: String): Option[T] = Try {
+    loadConfig[T](configuration.underlying, path).toOption
+  }.toOption.flatten
 
-  lazy val config: Config = loadConfig[Config](configuration.underlying).get
+  implicit val localDateConvert: ConfigConvert[LocalDate] = ConfigConvert.stringConvert[LocalDate](s => Try(df.parseLocalDate(s)), df.print(_))
+
+  val service: Option[ServiceConfig] = load[ServiceConfig]("service")
+  val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
+  val googleAnalytics: Option[GoogleAnalyticsConfig] = load[GoogleAnalyticsConfig]("googleAnalytics")
+  val sessionTimeoutInMinutes: Option[Int] = load[Int]("sessionTimeoutInMinutes")
+  val logAssets: Option[Boolean] = load[Boolean]("logAssets")
+  val logRequests: Option[Boolean] = load[Boolean]("logRequests")
+  val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
+
+  val config = Config(service, companiesHouse, googleAnalytics, logAssets, logRequests, printDBTables)
+
+  Logger.debug(s"Config is $config")
 }
