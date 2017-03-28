@@ -17,7 +17,7 @@
 
 import javax.inject._
 
-import config.GoogleAnalyticsConfig
+import config.PageConfig
 import controllers.PageHelper
 import org.scalactic.TripleEquals._
 import play.api._
@@ -30,11 +30,11 @@ import scala.concurrent.Future
 
 @Singleton
 class ErrorHandler @Inject()(
-                              val googleAnalytics: GoogleAnalyticsConfig,
                               env: Environment,
                               conf: Configuration,
                               sourceMapper: OptionalSourceMapper,
-                              router: Provider[Router]
+                              router: Provider[Router],
+                              val pageConfig: PageConfig
                             )
   extends DefaultHttpErrorHandler(env, conf, sourceMapper, router)
     with PageHelper {

@@ -37,10 +37,8 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
         bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
     }
 
-    bind(classOf[GoogleAnalyticsConfig])
-      .toInstance(config.googleAnalytics.getOrElse(GoogleAnalyticsConfig.empty))
+    bind(classOf[PageConfig]).toInstance(config.pageConfig)
 
-    bind(classOf[ServiceConfig])
-      .toInstance(config.service.getOrElse(ServiceConfig.empty))
+    bind(classOf[ServiceConfig]).toInstance(config.service.getOrElse(ServiceConfig.empty))
   }
 }

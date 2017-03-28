@@ -19,8 +19,8 @@ package forms.report
 
 import dbrows.{PaymentHistoryRow, PaymentTermsRow}
 import forms.DateRange
+import models.FiledReport
 import org.scalactic.TripleEquals._
-import services.FiledReport
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 

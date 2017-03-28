@@ -15,18 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package calculator
+package models
 
-import org.joda.time.LocalDate
+import dbrows._
 
-/**
-  * A `Calculator` wraps a `FinancialYear` and provides some convenience methods.
-  */
-case class Calculator(financialYear: FinancialYear) {
-  private val cutoff = new LocalDate(2017, 4, 6)
-
-  val isFuture: Boolean = !financialYear.startsOnOrAfter(cutoff)
-
-  def reportingPeriods: Seq[ReportingPeriod] =
-    financialYear.firstYearOnOrAfter(cutoff).reportingPeriods
-}
+case class FiledReport(
+                        header: ReportHeaderRow,
+                        period: ReportPeriodRow,
+                        paymentTerms: PaymentTermsRow,
+                        paymentHistory: PaymentHistoryRow,
+                        otherInfo: OtherInfoRow,
+                        filing: FilingRow
+                      )

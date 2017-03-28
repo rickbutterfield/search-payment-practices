@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 import cats.data.OptionT
 import cats.instances.future._
-import config.GoogleAnalyticsConfig
-import models.{CompaniesHouseId, ReportId}
+import config.PageConfig
+import models.{CompaniesHouseId, PagedResults, ReportId}
 import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller}
 import play.twirl.api.Html
@@ -33,7 +33,8 @@ import scala.concurrent.ExecutionContext
 class SearchController @Inject()(
                                   val companySearch: CompanySearchService,
                                   val reportService: ReportService,
-                                  val googleAnalytics: GoogleAnalyticsConfig)(implicit val ec: ExecutionContext)
+                                  val pageConfig: PageConfig
+                                )(implicit val ec: ExecutionContext)
   extends Controller
     with PageHelper
     with SearchHelper {
@@ -62,11 +63,11 @@ class SearchController @Inject()(
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
       co <- OptionT(companySearch.find(companiesHouseId))
-      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs.flatMap(_.filed), pageNumber.getOrElse(1))))
+      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs, pageNumber.getOrElse(1))))
     } yield {
       val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
-      Ok(page(s"Payment practice reports for ${co.companyName}")(crumbs, views.html.search.company(co, rs, pageLink, df)))
+      Ok(page(s"Payment practice reports for ${co.companyName}")(crumbs, views.html.search.company(co, rs, pageLink, df, pageConfig.publishConfig)))
     }
 
     result.value.map {

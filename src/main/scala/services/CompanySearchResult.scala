@@ -15,22 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package forms
+package services
 
-import org.joda.time.LocalDate
-import org.scalatest.{Matchers, WordSpecLike}
+import models.CompaniesHouseId
 
-class DateRangeTest extends WordSpecLike with Matchers {
-
-  "DateRange" can {
-    "calculate months in range" should {
-      "give 6 months" in {
-        DateRange(new LocalDate(2017,4,6), new LocalDate(2017, 10, 5)).monthsInRange shouldBe 6
-      }
-      "give 7 months" in {
-        DateRange(new LocalDate(2017,4,6), new LocalDate(2017, 10, 6)).monthsInRange shouldBe 7
-      }
-    }
-  }
-
-}
+case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: String)

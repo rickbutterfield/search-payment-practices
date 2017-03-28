@@ -15,26 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package controllers
+package models
 
-import models.CompaniesHouseId
-import play.api.mvc.Result
-import play.twirl.api.Html
-import services.{CompanyDetail, CompanySearchService}
+case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, totalResults: Int) {
+  val pageCount = (totalResults / pageSize.toDouble).ceil
 
-import scala.concurrent.{ExecutionContext, Future}
+  private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
 
-trait CompanyHelper {
-  def companySearch: CompanySearchService
+  def canPage: Boolean = canGoBack || canGoNext
 
-  implicit def ec: ExecutionContext
+  def canGoBack: Boolean = canGo(pageNumber - 1)
 
-  import play.api.mvc.Results._
+  def canGoNext: Boolean = canGo(pageNumber + 1)
 
-  def withCompany(companiesHouseId: CompaniesHouseId, foundResult: Html => Result = Ok(_))(body: CompanyDetail => Html): Future[Result] = {
-    companySearch.find(companiesHouseId).map {
-      case Some(co) => foundResult(body(co))
-      case None => BadRequest(s"Unknown company id ${companiesHouseId.id}")
-    }
+  def canGo(n: Int): Boolean = isValidRange(n)
+}
+
+object PagedResults {
+  def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
+
+  def page[T](items: Seq[T], pageNumber: Int, pageSize: Int = 25): PagedResults[T] = {
+    PagedResults(items.drop((pageNumber - 1) * pageSize).take(pageSize), pageSize, pageNumber, items.length)
   }
 }

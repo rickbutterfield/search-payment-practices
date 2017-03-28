@@ -21,7 +21,7 @@ import java.util.Base64
 import javax.inject.Inject
 
 import config.CompaniesHouseConfig
-import models.CompaniesHouseId
+import models.{CompaniesHouseId, CompanyDetail, PagedResults}
 import play.api.Logger
 import play.api.libs.ws.WSClient
 import services._

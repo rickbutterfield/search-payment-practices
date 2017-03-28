@@ -20,11 +20,11 @@ package slicks.repos
 import javax.inject.Inject
 
 import com.github.tminglei.slickpg.PgDateSupportJoda
-import models.{CompaniesHouseId, ReportId}
+import models.{CompaniesHouseId, FiledReport, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.DatabaseConfigProvider
-import services.{FiledReport, ReportService}
+import services.ReportService
 import slicks.DBBinding
 import slicks.modules.ReportModule
 

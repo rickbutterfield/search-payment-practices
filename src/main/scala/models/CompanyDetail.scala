@@ -15,26 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package models
 
-case class PagedResults[T](items: Seq[T], pageSize: Int, pageNumber: Int, totalResults: Int) {
-  val pageCount = (totalResults / pageSize.toDouble).ceil
+import com.wellfactored.playbindings.ValueClassFormats
+import play.api.libs.json.Json
 
-  private def isValidRange(pageNumber: Int) = pageNumber <= pageCount && pageNumber >= 1
+case class CompanyDetail(companiesHouseId: CompaniesHouseId, companyName: String)
 
-  def canPage: Boolean = canGoBack || canGoNext
-
-  def canGoBack: Boolean = canGo(pageNumber - 1)
-
-  def canGoNext: Boolean = canGo(pageNumber + 1)
-
-  def canGo(n: Int): Boolean = isValidRange(n)
-}
-
-object PagedResults {
-  def empty[T] = PagedResults[T](Seq.empty[T], 0, 0, 0)
-
-  def page[T](items: Seq[T], pageNumber: Int, pageSize: Int = 25): PagedResults[T] = {
-    PagedResults(items.drop((pageNumber - 1) * pageSize).take(pageSize), pageSize, pageNumber, items.length)
-  }
+object CompanyDetail extends ValueClassFormats {
+  implicit val fmt = Json.format[CompanyDetail]
 }

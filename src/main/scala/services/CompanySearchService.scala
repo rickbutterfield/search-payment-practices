@@ -17,19 +17,10 @@
 
 package services
 
-import com.wellfactored.playbindings.ValueClassFormats
-import models.CompaniesHouseId
-import play.api.libs.json.Json
+
+import models.{CompaniesHouseId, CompanyDetail, PagedResults}
 
 import scala.concurrent.Future
-
-case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: String)
-
-case class CompanyDetail(companiesHouseId: CompaniesHouseId, companyName: String)
-
-object CompanyDetail extends ValueClassFormats {
-  implicit val fmt = Json.format[CompanyDetail]
-}
 
 trait CompanySearchService {
   def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]]

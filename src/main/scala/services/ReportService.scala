@@ -19,49 +19,18 @@ package services
 
 import com.google.inject.ImplementedBy
 import dbrows._
-import models.{CompaniesHouseId, ReportId}
+import models.{CompaniesHouseId, FiledReport, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
 
 import scala.concurrent.Future
 
-case class Report(
-                   header: ReportHeaderRow,
-                   period: Option[ReportPeriodRow],
-                   paymentTerms: Option[PaymentTermsRow],
-                   paymentHistory: Option[PaymentHistoryRow],
-                   otherInfo: Option[OtherInfoRow],
-                   filing: Option[FilingRow]) {
-  /**
-    * If this report has been completed and filed then return Some `FiledReport`
-    * otherwise None
-    */
-  def filed: Option[FiledReport] = for {
-    p <- period
-    terms <- paymentTerms
-    hist <- paymentHistory
-    other <- otherInfo
-    f <- filing
-  } yield FiledReport(header, p, terms, hist, other, f)
-
-  def isFiled: Boolean = filed.isDefined
-}
-
-case class FiledReport(
-                        header: ReportHeaderRow,
-                        period: ReportPeriodRow,
-                        paymentTerms: PaymentTermsRow,
-                        paymentHistory: PaymentHistoryRow,
-                        otherInfo: OtherInfoRow,
-                        filing: FilingRow
-                      )
-
 @ImplementedBy(classOf[ReportTable])
 trait ReportService {
   def findFiled(id: ReportId): Future[Option[FiledReport]]
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[FiledReport]]
 
   def list(cutoffDate: LocalDate): Publisher[FiledReport]
 

@@ -19,22 +19,21 @@ package controllers
 
 import javax.inject.Inject
 
-import config.GoogleAnalyticsConfig
-import play.api.Logger
+import config.PageConfig
 import play.api.mvc.{Action, Controller}
 
-class HomeController @Inject()(val googleAnalytics: GoogleAnalyticsConfig) extends Controller with PageHelper {
+class HomeController @Inject()(
+                                val pageConfig: PageConfig
+                              ) extends Controller with PageHelper {
 
-  private val pateTitle = "Report on payment practices"
+  private val pageTitle = "Search published payment practices reports"
 
   def index = Action { request =>
-    Logger.debug(request.host)
-    Logger.debug(request.domain)
-    Ok(page(pateTitle)(views.html.index()))
+    Redirect(controllers.routes.HomeController.start())
   }
 
   def start = Action {
-    Ok(page(pateTitle)(views.html.start()))
+    Ok(page(pageTitle)(views.html.search.start()))
   }
 
   /**

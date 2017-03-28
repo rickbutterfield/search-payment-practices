@@ -19,6 +19,7 @@ package config
 
 import javax.inject.{Inject, Singleton}
 
+import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.api.{Configuration, Logger}
@@ -43,11 +44,23 @@ object ServiceConfig {
 case class Config(
                    service: Option[ServiceConfig],
                    companiesHouse: Option[CompaniesHouseConfig],
-                   googleAnalytics: Option[GoogleAnalyticsConfig],
                    logAssets: Option[Boolean],
                    logRequests: Option[Boolean],
-                   printDBTables: Option[Boolean]
+                   pageConfig: PageConfig
                  )
+
+case class PublishConfig(publishUrl: String, calculatorUrl: String, questionnaireUrl: String) {
+  def startPublishing(companiesHouseId: CompaniesHouseId): String = ???
+}
+
+object PublishConfig {
+  val local = PublishConfig(
+    "http://localhost:9000/report-payment-practices",
+    "http://localhost:9000/calculate-reporting-deadlines",
+    "http://localhost:9000/check-if-you-need-to-report")
+}
+
+case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, publishConfig: PublishConfig)
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
@@ -64,13 +77,14 @@ class AppConfig @Inject()(configuration: Configuration) {
 
   val service: Option[ServiceConfig] = load[ServiceConfig]("service")
   val companiesHouse: Option[CompaniesHouseConfig] = load[CompaniesHouseConfig]("companiesHouse")
-  val googleAnalytics: Option[GoogleAnalyticsConfig] = load[GoogleAnalyticsConfig]("googleAnalytics")
+  val googleAnalytics: GoogleAnalyticsConfig = load[GoogleAnalyticsConfig]("googleAnalytics").getOrElse(GoogleAnalyticsConfig.empty)
   val sessionTimeoutInMinutes: Option[Int] = load[Int]("sessionTimeoutInMinutes")
   val logAssets: Option[Boolean] = load[Boolean]("logAssets")
   val logRequests: Option[Boolean] = load[Boolean]("logRequests")
   val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
+  val publishConfig: PublishConfig = load[PublishConfig]("publishLinks").getOrElse(PublishConfig.local)
 
-  val config = Config(service, companiesHouse, googleAnalytics, logAssets, logRequests, printDBTables)
+  val config = Config(service, companiesHouse, logAssets, logRequests, PageConfig(googleAnalytics, publishConfig))
 
   Logger.debug(s"Config is $config")
 }

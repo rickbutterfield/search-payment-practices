@@ -19,9 +19,9 @@ package services.mocks
 
 import javax.inject.Inject
 
-import models.CompaniesHouseId
+import models.{CompaniesHouseId, CompanyDetail, PagedResults}
 import org.scalactic.TripleEquals._
-import services.{CompanyDetail, CompanySearchResult, CompanySearchService, PagedResults}
+import services.{CompanySearchResult, CompanySearchService}
 
 import scala.concurrent.{ExecutionContext, Future}
 

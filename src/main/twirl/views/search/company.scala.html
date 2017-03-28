@@ -1,7 +1,4 @@
-@import org.joda.time.format.DateTimeFormatter
-@import services.{CompanyDetail, FiledReport, PagedResults}
-
-@(item: CompanyDetail, reports: PagedResults[FiledReport], pageLink: Int => String, df: DateTimeFormatter)
+@(item: CompanyDetail, reports: PagedResults[FiledReport], pageLink: Int => String, df: DateTimeFormatter, publishConfig: config.PublishConfig)
 
 <div id="contentStart" class="scannable-wrapper">
     <h1 class="heading-xlarge">
@@ -21,7 +18,7 @@
         </ul>
         <h3 class="heading-medium">Do you work for this business?</h3>
         <ul class="list">
-            <li>Your business may need to <a href="@routes.QuestionnaireController.start()">
+            <li>Your business may need to <a href="@publishConfig.publishUrl">
                 publish reports on its payment practices</a>.</li>
         </ul>
 
@@ -44,9 +41,9 @@
                 <div class="separator"></div>
                 <h3 class="heading-sidebar">Do you work for this business?</h3>
                 <ul class="list">
-                    <li><a href="@routes.QuestionnaireController.start()">Get prepared</a>
+                    <li><a href="@publishConfig.questionnaireUrl">Get prepared</a>
                         : find out if, when and how your business needs to publish reports</li>
-                    <li><a href="@routes.ReportController.start(item.companiesHouseId)">Publish a report</a>
+                    <li><a href="@publishConfig.startPublishing(item.companiesHouseId)">Publish a report</a>
                         : once your report data is fully prepared</li>
                 </ul>
             </div>
