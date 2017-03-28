@@ -19,7 +19,6 @@ package config
 
 import javax.inject.{Inject, Singleton}
 
-import models.CompaniesHouseId
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import play.api.{Configuration, Logger}
@@ -48,17 +47,6 @@ case class Config(
                    logRequests: Option[Boolean],
                    pageConfig: PageConfig
                  )
-
-case class PublishConfig(publishUrl: String, calculatorUrl: String, questionnaireUrl: String) {
-  def startPublishing(companiesHouseId: CompaniesHouseId): String = s"$publishUrl/company/${companiesHouseId.id}/start"
-}
-
-object PublishConfig {
-  val local = PublishConfig(
-    "http://localhost:9000/report-payment-practices",
-    "http://localhost:9000/calculate-reporting-deadlines",
-    "http://localhost:9000/check-if-you-need-to-report")
-}
 
 case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, publishConfig: PublishConfig)
 
