@@ -43,7 +43,7 @@ class SearchController @Inject()(
 
   def start() = Action(Ok(page("Search payment practice reports")(views.html.search.start())))
 
-  private val searchForReports = "Search for reports"
+  private val searchForReports = "Search for published payment practice reports"
   val searchHeader = h1(searchForReports)
   val searchLink = routes.SearchController.search(None, None, None).url
   val searchPageTitle = "Search for a company"
@@ -54,7 +54,7 @@ class SearchController @Inject()(
 
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
-      page(searchPageTitle)(home, searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _)))
+      page(searchPageTitle)(searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _)))
 
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
@@ -65,9 +65,7 @@ class SearchController @Inject()(
       co <- OptionT(companySearch.find(companiesHouseId))
       rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs, pageNumber.getOrElse(1))))
     } yield {
-      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
-      val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb)
-      Ok(page(s"Payment practice reports for ${co.companyName}")(crumbs, views.html.search.company(co, rs, pageLink, df, pageConfig.publishConfig)))
+      Ok(page(s"Payment practice reports for ${co.companyName}")(home, views.html.search.company(co, rs, pageLink, df, pageConfig.publishConfig)))
     }
 
     result.value.map {

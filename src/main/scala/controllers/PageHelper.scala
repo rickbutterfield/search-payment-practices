@@ -41,7 +41,7 @@ trait PageHelper {
 
   def h1(text: String) = views.html.shared._h1(Html(text))
 
-  val homeBreadcrumb = Breadcrumb(routes.HomeController.index(), "Payment practices reporting")
+  val homeBreadcrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search published reports")
   val home = breadcrumbs(homeBreadcrumb)
 
   def breadcrumbs(crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs)

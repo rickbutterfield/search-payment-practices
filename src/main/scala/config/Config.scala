@@ -50,7 +50,7 @@ case class Config(
                  )
 
 case class PublishConfig(publishUrl: String, calculatorUrl: String, questionnaireUrl: String) {
-  def startPublishing(companiesHouseId: CompaniesHouseId): String = ???
+  def startPublishing(companiesHouseId: CompaniesHouseId): String = s"$publishUrl/company/${companiesHouseId.id}/start"
 }
 
 object PublishConfig {
