@@ -32,7 +32,7 @@ class HomeController @Inject()(
     Redirect(controllers.routes.HomeController.start())
   }
 
-  def start = Action {
+  def start = Action { implicit request =>
     Ok(page(pageTitle)(views.html.search.start()))
   }
 
