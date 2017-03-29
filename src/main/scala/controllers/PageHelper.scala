@@ -18,21 +18,57 @@
 package controllers
 
 import config.{GoogleAnalyticsConfig, PageConfig, PublishConfig}
+import models.CompaniesHouseId
 import org.scalactic.TripleEquals._
 import play.api.data.Form
-import play.api.mvc.Call
+import play.api.mvc.{Call, RequestHeader}
 import play.twirl.api.Html
 
 import scala.collection.immutable
 
 case class Breadcrumb(href: Call, name: String)
 
+trait ExternalRoutes {
+  def publish(): String
+
+  def publish(companiesHouseId: CompaniesHouseId): String
+
+  def calculate(): String
+
+  def questionnaire(): String
+
+}
+
+object ExternalRoutes {
+  def forHost(host: String): ExternalRoutes = new ExternalRoutes {
+    val router = PublishConfig.fromHostname(host)
+
+    override def questionnaire(): String = router.questionnaireUrl
+
+    override def publish(): String = router.publishUrl
+
+    override def publish(companiesHouseId: CompaniesHouseId): String = router.startPublishing(companiesHouseId)
+
+    override def calculate(): String = router.calculatorUrl
+  }
+}
+
+case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRoutes: ExternalRoutes)
+
 trait PageHelper {
   def pageConfig: PageConfig
 
-  def page(title: String)(contents: Html*): Html = {
+  implicit def er(implicit request: RequestHeader): ExternalRoutes = {
+    ExternalRoutes.forHost(request.host)
+  }
+
+  implicit def pc(implicit externalRoutes: ExternalRoutes): PageContext = {
+    PageContext(pageConfig.googleAnalyticsConfig, externalRoutes)
+  }
+
+  def page(title: String)(contents: Html*)(implicit pageContext: PageContext): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults(title)(content)(pageConfig)
+    views.html.templates.govukTemplateDefaults(title)(content)(pageContext)
   }
 
   def html(contents: Html*): Html = {

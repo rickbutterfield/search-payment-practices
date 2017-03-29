@@ -41,7 +41,9 @@ class SearchController @Inject()(
 
   val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
-  def start() = Action(Ok(page("Search payment practice reports")(views.html.search.start())))
+  def start() = Action { implicit request =>
+    Ok(page("Search payment practice reports")(views.html.search.start()))
+  }
 
   private val searchForReports = "Search for published payment practice reports"
   val searchHeader = h1(searchForReports)
@@ -52,7 +54,7 @@ class SearchController @Inject()(
 
   def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.SearchController.search(query, Some(pageNumber), itemsPerPage).url
 
-  def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async {
+  def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
       page(searchPageTitle)(searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _)))
 
@@ -65,7 +67,7 @@ class SearchController @Inject()(
       co <- OptionT(companySearch.find(companiesHouseId))
       rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs, pageNumber.getOrElse(1))))
     } yield {
-      Ok(page(s"Payment practice reports for ${co.companyName}")(home, views.html.search.company(co, rs, pageLink, df, pageConfig.publishConfig)))
+      Ok(page(s"Payment practice reports for ${co.companyName}")(home, views.html.search.company(co, rs, pageLink, df)))
     }
 
     result.value.map {
@@ -78,9 +80,8 @@ class SearchController @Inject()(
     val f = for {
       report <- OptionT(reportService.findFiled(reportId))
     } yield {
-      val searchCrumb = Breadcrumb(routes.SearchController.search(None, None, None), searchForReports)
       val companyCrumb = Breadcrumb(routes.SearchController.company(report.header.companyId, None), s"${report.header.companyName} reports")
-      val crumbs = breadcrumbs(homeBreadcrumb, searchCrumb, companyCrumb)
+      val crumbs = breadcrumbs(homeBreadcrumb, companyCrumb)
       Ok(page(s"Payment practice report for ${report.header.companyName}")(crumbs, views.html.search.report(report, df)))
     }
 

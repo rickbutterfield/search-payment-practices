@@ -1,4 +1,4 @@
-@(publishConfig: config.PublishConfig)
+@(externalRoutes: ExternalRoutes)
 
 <div class="footer-categories">
     <div class="footer-explore grid-row">
@@ -20,9 +20,9 @@
             </h3>
 
             <ul class="list">
-                <li><a href="@publishConfig.questionnaireUrl">Find out if your business needs to publish reports</a></li>
-                <li><a href="@publishConfig.calculatorUrl">Determine your reporting deadlines</a></li>
-                <li><a href="@publishConfig.publishUrl">Publish a report</a></li>
+                <li><a href="@externalRoutes.questionnaire()">Find out if your business needs to publish reports</a></li>
+                <li><a href="@externalRoutes.calculate()">Determine your reporting deadlines</a></li>
+                <li><a href="@externalRoutes.publish()">Publish a report</a></li>
             </ul>
         </div>
     </div>

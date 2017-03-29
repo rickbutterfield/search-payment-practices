@@ -33,7 +33,7 @@ class DownloadController @Inject()(
                                     val pageConfig: PageConfig
                                   ) extends Controller with PageHelper {
 
-  def show = Action {
+  def show = Action { implicit request =>
     Ok(page("Export data for published reports")(home, views.html.download.accessData()))
   }
 

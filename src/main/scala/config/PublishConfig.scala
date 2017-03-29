@@ -24,12 +24,27 @@ case class PublishConfig(publishUrl: String, calculatorUrl: String, questionnair
 }
 
 object PublishConfig {
+  private val publishPath = "report-payment-practices"
+  private val calculatePath = "calculate-reporting-deadlines"
+  private val questionnairePath = "check-if-you-need-to-report"
+
   val local = PublishConfig(
-    "http://localhost:9000/report-payment-practices",
-    "http://localhost:9000/calculate-reporting-deadlines",
-    "http://localhost:9000/check-if-you-need-to-report")
+    s"http://localhost:9000/$publishPath",
+    s"http://localhost:9000/$calculatePath",
+    s"http://localhost:9000/$questionnairePath"
+  )
 
   def fromHostname(hostname: String): PublishConfig = {
-    ???
+    val Pattern = "beis-spp-(.*)".r
+    val pprBase = hostname match {
+      case Pattern(environment) => s"https://beis-ppr-$environment"
+      case _ => "http://localhost:9000"
+    }
+
+    PublishConfig(
+      s"$pprBase/$publishPath",
+      s"$pprBase/$calculatePath",
+      s"$pprBase/$questionnairePath"
+    )
   }
 }
