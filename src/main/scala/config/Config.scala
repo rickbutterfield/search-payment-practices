@@ -40,7 +40,7 @@ object ServiceConfig {
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
-case class RoutesConfig(searchHost: Option[String])
+case class RoutesConfig(publishHost: Option[String])
 
 object RoutesConfig {
   val empty = RoutesConfig(None)

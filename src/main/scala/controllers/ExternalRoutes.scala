@@ -42,7 +42,7 @@ class ExternalRoutes(routesConfig: RoutesConfig) {
   private val questionnairePath = "decide"
 
   def apply(requestHostname: String) = new ExternalRouter {
-    override val root = routesConfig.searchHost match {
+    override val root = routesConfig.publishHost match {
       case Some(hostname) => s"https://$hostname"
       case None => requestHostname match {
         case HerokuPattern(environment) => s"https://beis-ppr-$environment"
