@@ -17,8 +17,7 @@
 
 package controllers
 
-import config.{GoogleAnalyticsConfig, PageConfig, PublishConfig}
-import models.CompaniesHouseId
+import config.{GoogleAnalyticsConfig, PageConfig}
 import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.mvc.{Call, RequestHeader}
@@ -28,42 +27,18 @@ import scala.collection.immutable
 
 case class Breadcrumb(href: Call, name: String)
 
-trait ExternalRoutes {
-  def publish(): String
-
-  def publish(companiesHouseId: CompaniesHouseId): String
-
-  def calculate(): String
-
-  def questionnaire(): String
-
-}
-
-object ExternalRoutes {
-  def forHost(host: String): ExternalRoutes = new ExternalRoutes {
-    val router = PublishConfig.fromHostname(host)
-
-    override def questionnaire(): String = router.questionnaireUrl
-
-    override def publish(): String = router.publishUrl
-
-    override def publish(companiesHouseId: CompaniesHouseId): String = router.startPublishing(companiesHouseId)
-
-    override def calculate(): String = router.calculatorUrl
-  }
-}
-
-case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRoutes: ExternalRoutes)
+case class PageContext(googleAnalyticsConfig: GoogleAnalyticsConfig, externalRouter: ExternalRouter)
 
 trait PageHelper {
   def pageConfig: PageConfig
 
-  implicit def er(implicit request: RequestHeader): ExternalRoutes = {
-    ExternalRoutes.forHost(request.host)
+
+  implicit def er(implicit request: RequestHeader): ExternalRouter = {
+    new ExternalRoutes(pageConfig.routesConfig).apply(request.host)
   }
 
-  implicit def pc(implicit externalRoutes: ExternalRoutes): PageContext = {
-    PageContext(pageConfig.googleAnalyticsConfig, externalRoutes)
+  implicit def pc(implicit externalRouter: ExternalRouter): PageContext = {
+    PageContext(pageConfig.googleAnalyticsConfig, externalRouter)
   }
 
   def page(title: String)(contents: Html*)(implicit pageContext: PageContext): Html = {

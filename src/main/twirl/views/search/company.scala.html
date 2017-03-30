@@ -2,7 +2,7 @@
         item: CompanyDetail,
         reports: PagedResults[FiledReport],
         pageLink: Int => String,
-        df: DateTimeFormatter)(implicit externalRoutes: ExternalRoutes)
+        df: DateTimeFormatter)(implicit externalRouter: ExternalRouter)
 
 <div id="contentStart" class="scannable-wrapper">
     <h1 class="heading-xlarge">
@@ -22,7 +22,7 @@
         </ul>
         <h3 class="heading-medium">Do you work for this business?</h3>
         <ul class="list">
-            <li>Your business may need to <a href="@externalRoutes.publish(item.companiesHouseId)">
+            <li>Your business may need to <a href="@externalRouter.publish(item.companiesHouseId)">
                 publish reports on its payment practices</a>.</li>
         </ul>
 
@@ -45,9 +45,9 @@
                 <div class="separator"></div>
                 <h3 class="heading-sidebar">Do you work for this business?</h3>
                 <ul class="list">
-                    <li><a href="@externalRoutes.questionnaire()">Get prepared</a>
+                    <li><a href="@externalRouter.questionnaire()">Get prepared</a>
                         : find out if, when and how your business needs to publish reports</li>
-                    <li><a href="@externalRoutes.publish(item.companiesHouseId)">Publish a report</a>
+                    <li><a href="@externalRouter.publish(item.companiesHouseId)">Publish a report</a>
                         : once your report data is fully prepared</li>
                 </ul>
             </div>

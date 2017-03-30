@@ -40,6 +40,12 @@ object ServiceConfig {
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
+case class RoutesConfig(searchHost: Option[String])
+
+object RoutesConfig {
+  val empty = RoutesConfig(None)
+}
+
 case class Config(
                    service: Option[ServiceConfig],
                    companiesHouse: Option[CompaniesHouseConfig],
@@ -48,7 +54,7 @@ case class Config(
                    pageConfig: PageConfig
                  )
 
-case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, publishConfig: PublishConfig)
+case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, routesConfig: RoutesConfig)
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
@@ -70,9 +76,9 @@ class AppConfig @Inject()(configuration: Configuration) {
   val logAssets: Option[Boolean] = load[Boolean]("logAssets")
   val logRequests: Option[Boolean] = load[Boolean]("logRequests")
   val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
-  val publishConfig: PublishConfig = load[PublishConfig]("publishLinks").getOrElse(PublishConfig.local)
+  val routesConfig: RoutesConfig = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
 
-  val config = Config(service, companiesHouse, logAssets, logRequests, PageConfig(googleAnalytics, publishConfig))
+  val config = Config(service, companiesHouse, logAssets, logRequests, PageConfig(googleAnalytics, routesConfig))
 
   Logger.debug(s"Config is $config")
 }
