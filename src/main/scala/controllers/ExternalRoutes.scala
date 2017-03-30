@@ -32,6 +32,15 @@ trait ExternalRouter {
   def questionnaire(): String
 }
 
+/**
+  * This class generates urls that refer to the publishing application. By default it will check to see if the
+  * hostname matches the naming pattern we use for environment deployments on Heroku (e.g. beis-spp-dev.herokuapp.comm.
+  * If it does match then it will use a corresponding hostname for the publising app, (e.g. beis-ppr-dev.herokuapp.com).
+  * If not then it will fallback to using `localhost:9000`, which is the default in a local environment.
+  *
+  * This default behaviour can be overridden by specifying a hostname in the application config (using the key
+  * `externalRouter.publishHost`. If that is set then that hostname will always be used.
+  */
 class ExternalRoutes(routesConfig: RoutesConfig) {
   import views.html.helper.urlEncode
 
