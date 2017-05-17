@@ -19,4 +19,4 @@ package services
 
 import models.CompaniesHouseId
 
-case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: String)
+case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: Option[String])
