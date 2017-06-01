@@ -66,13 +66,13 @@ trait ReportModule  {
   type ContractDetailsQuery = Query[ContractDetailsTable, ContractDetailsRow, Seq]
 
   class ContractDetailsTable(tag: Tag) extends Table[ContractDetailsRow](tag, "contract_details") {
-    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length))
+    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length), O.Unique)
     def reportIdFK = foreignKey("long_form_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
     def reportIdIndex = index("long_form_report_idx", reportId, unique = true)
 
-
     def paymentTerms = column[String]("payment_terms", O.Length(paymentTermsCharCount))
-    def paymentPeriod = column[Int]("payment_period")
+    def shortestPaymentPeriod = column[Int]("shortest_payment_period")
+    def longestPaymentPeriod = column[Option[Int]]("longest_payment_period")
     def maximumContractPeriod = column[Int]("maximum_contract_period")
     def maximumContractPeriodComment = column[Option[String]]("maximum_contract_period_comment", O.Length(maxContractPeriodCommentCharCount))
     def paymentTermsChangedComment = column[Option[String]]("payment_terms_changed_comment", O.Length(paymentTermsChangedCharCount))
@@ -93,7 +93,8 @@ trait ReportModule  {
 
     def * = (reportId,
       paymentTerms,
-      paymentPeriod,
+      shortestPaymentPeriod,
+      longestPaymentPeriod,
       maximumContractPeriod,
       maximumContractPeriodComment,
       paymentTermsChangedComment,
