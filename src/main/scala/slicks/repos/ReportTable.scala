@@ -19,50 +19,53 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import com.github.tminglei.slickpg.PgDateSupportJoda
-import models.{CompaniesHouseId, FiledReport, ReportId}
+import models.{CompaniesHouseId, Report, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
-import play.api.db.slick.DatabaseConfigProvider
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.ReportService
-import slicks.DBBinding
-import slicks.modules.ReportModule
+import slick.jdbc.JdbcProfile
+import slicks.modules.{CoreModule, ReportModule}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReportTable @Inject()(val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends DBBinding
+class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
+  extends CoreModule
     with ReportService
     with ReportModule
     with ReportQueries
-    with PgDateSupportJoda {
+    with HasDatabaseConfig[JdbcProfile] {
 
-  import api._
+  override lazy val dbConfig = dbConfigProvider.get[JdbcProfile]
 
-  def filedReportByIdQ(id: Rep[ReportId]) = filedReportQuery.filter(_._1.id === id)
+  import profile.api._
 
-  val filedReportByIdC = Compiled(filedReportByIdQ _)
+  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.id === reportId)
 
-  def findFiled(id: ReportId): Future[Option[FiledReport]] = db.run {
-    filedReportByIdC(id).result.headOption.map(_.map(FiledReport.tupled))
+  val reportByIdC = Compiled(reportByIdQ _)
+
+  def find(id: ReportId): Future[Option[Report]] = db.run {
+    reportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
-  def reportByCoNoQ(companiesHouseId: Rep[CompaniesHouseId]) = filedReportQuery.filter(_._1.companyId === companiesHouseId)
+  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
 
   val reportByCoNoC = Compiled(reportByCoNoQ _)
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[FiledReport]] = db.run {
-    reportByCoNoC(companiesHouseId).result.map(_.map(FiledReport.tupled))
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
+    reportByCoNoC(companiesHouseId).result.map(_.map(Report.apply))
   }
 
   /**
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate): Publisher[FiledReport] = {
+  def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-    val action = filedReportQueryC.result.withStatementParameters(fetchSize = 10000)
+    val action = reportQueryC.result.withStatementParameters(fetchSize = 10000)
 
-    db.stream(disableAutocommit andThen action).mapResult(FiledReport.tupled)
+    db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
+
+
 }

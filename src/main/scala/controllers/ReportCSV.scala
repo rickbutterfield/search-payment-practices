@@ -17,7 +17,7 @@
 
 package controllers
 
-import models.FiledReport
+import models.Report
 import org.joda.time.LocalDate
 import utils.YesNo
 
@@ -39,42 +39,40 @@ object ReportCSV {
   }
 
   implicit def stringToCSVString(s: String): CSVString = CSVString(escape(s))
-
   implicit def intToCSVString(i: Int): CSVString = CSVString(i.toString)
-
   implicit def decimalToCSVString(d: BigDecimal): CSVString = CSVString(d.toString)
-
   implicit def dateToCSVString(d: LocalDate): CSVString = CSVString(d.toString)
-
   implicit def booleanToCSVString(b: Boolean): CSVString = CSVString(b.toString)
-
   implicit def yesNoToCSVString(yn: YesNo): CSVString = yn.toBoolean
 
   implicit def optionToCSVString(o: Option[String]): CSVString = o.map(stringToCSVString).getOrElse(CSVString(""))
+  implicit def optionIntToCSVString(o: Option[Int]): CSVString = o.map(intToCSVString).getOrElse(CSVString(""))
+  implicit def optionYesNoToCSVString(o: Option[YesNo]): CSVString = o.map(yesNoToCSVString).getOrElse(CSVString(""))
+  implicit def optionBooleanToCSVString(o: Option[Boolean]): CSVString = o.map(booleanToCSVString).getOrElse(CSVString(""))
 
-  def columns = Seq[(String, FiledReport => CSVString)](
-    ("Start date", _.period.startDate),
-    ("End date", _.period.endDate),
-    ("Filing date", _.filing.filingDate),
-    ("Company", _.header.companyName),
-    ("Company number", _.header.companyId.id),
-    ("Average time to pay", _.paymentHistory.averageDaysToPay),
-    ("% Invoices paid late", _.paymentHistory.percentPaidLaterThanAgreedTerms),
-    ("% Invoices paid within 30 days", _.paymentHistory.percentInvoicesWithin30Days),
-    ("% Invoices paid within 60 days", _.paymentHistory.percentInvoicesWithin60Days),
-    ("% Invoices paid later than 60 days", _.paymentHistory.percentInvoicesBeyond60Days),
-    ("E-Invoicing offered", _.otherInfo.offerEInvoicing),
-    ("Supply-chain financing offered", _.otherInfo.offerSupplyChainFinance),
-    ("Policy covers charges for remaining on supplier list", _.otherInfo.retentionChargesInPolicy),
-    ("Charges have been made for remaining on supplier list", _.otherInfo.retentionChargesInPast),
-    ("Payment terms", _.paymentTerms.paymentTermsComment),
-    ("Maximum Contract Length", _.paymentTerms.maximumContractPeriod),
-    ("Payment terms have changed", _.paymentTerms.paymentTermsChangedComment.isDefined),
-    ("Payment terms have changed: comments", _.paymentTerms.paymentTermsChangedComment),
-    ("Suppliers notified of changes", _.paymentTerms.paymentTermsChangedNotifiedComment.isDefined),
-    ("Suppliers notified of changes: comments", _.paymentTerms.paymentTermsChangedNotifiedComment),
-    ("Further remarks on payment terms", _.paymentTerms.paymentTermsComment),
-    ("Dispute resolution facilities", _.paymentTerms.disputeResolution),
-    ("Participates in payment codes", _.otherInfo.paymentCodes.isDefined),
-    ("Payment codes", _.otherInfo.paymentCodes))
+  def columns = Seq[(String, Report => CSVString)](
+    ("Start date", _.reportDates.startDate),
+    ("End date", _.reportDates.endDate),
+    ("Filing date", _.filingDate),
+    ("Company", _.companyName),
+    ("Company number", _.companyId.id),
+    ("Average time to pay", _.contractDetails.map(_.paymentHistory.averageDaysToPay)),
+    ("% Invoices paid late", _.contractDetails.map(_.paymentHistory.percentPaidLaterThanAgreedTerms)),
+    ("% Invoices paid within 30 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentWithin30Days)),
+    ("% Invoices paid within 60 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentWithin60Days)),
+    ("% Invoices paid later than 60 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentBeyond60Days)),
+    ("E-Invoicing offered", _.contractDetails.map(_.offerEInvoicing)),
+    ("Supply-chain financing offered", _.contractDetails.map(_.offerSupplyChainFinance)),
+    ("Policy covers charges for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPolicy)),
+    ("Charges have been made for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPast)),
+    ("Payment terms", _.contractDetails.flatMap(_.paymentTerms.paymentTermsComment)),
+    ("Maximum Contract Length", _.contractDetails.map(_.paymentTerms.maximumContractPeriod)),
+    ("Payment terms have changed", _.contractDetails.map(_.paymentTerms.paymentTermsChanged.comment.isDefined)),
+    ("Payment terms have changed: comments", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.comment.text)),
+    ("Suppliers notified of changes", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.notified.map(_.isDefined))),
+    ("Suppliers notified of changes: comments", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.notified.flatMap(_.text))),
+    ("Further remarks on payment terms", _.contractDetails.flatMap(_.paymentTerms.paymentTermsComment)),
+    ("Dispute resolution facilities", _.contractDetails.map(_.paymentTerms.disputeResolution)),
+    ("Participates in payment codes", _.paymentCodes.isDefined),
+    ("Payment codes", _.paymentCodes.text))
 }

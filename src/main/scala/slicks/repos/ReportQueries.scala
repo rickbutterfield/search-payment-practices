@@ -17,27 +17,21 @@
 
 package slicks.repos
 
-import slicks.DBBinding
-import slicks.modules.ReportModule
+import slicks.modules.{CoreModule, ReportModule}
 
 trait ReportQueries {
-  self: DBBinding with ReportModule =>
+  self: CoreModule with ReportModule =>
 
-  import api._
+  import profile.api._
 
   /**
-    * Select reports that have been filed - i.e. all sections are present
+    * This is quite an awkward query expression. The purpose is to select all report headers and, at
+    * the same time, retrieve all sections of the report that are present in the database. This allows
+    * for the situation where some sections are not yet completed. All of the section structures come
+    * back as `Option`s. Only the header is guaranteed to be present in the result.
     */
-  val filedReportQuery = {
-    for {
-      header <- reportHeaderTable
-      period <- reportPeriodTable if period.reportId === header.id
-      terms <- paymentTermsTable if terms.reportId === header.id
-      history <- paymentHistoryTable if history.reportId === header.id
-      other <- otherInfoTable if other.reportId === header.id
-      filing <- filingTable if filing.reportId === header.id
-    } yield (header, period, terms, history, other, filing)
-  }
+  val reportQuery = reportTable.joinLeft(contractDetailsTable).on(_.id === _.reportId)
 
-  val filedReportQueryC = Compiled(filedReportQuery)
+  val reportQueryC = Compiled(reportQuery)
+
 }
