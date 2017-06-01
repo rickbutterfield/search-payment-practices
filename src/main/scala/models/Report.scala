@@ -59,7 +59,8 @@ object Report {
     import row._
     ContractDetails(
       PaymentTerms(
-        paymentPeriod,
+        shortestPaymentPeriod: Int,
+        longestPaymentPeriod: Option[Int],
         paymentTerms,
         maximumContractPeriod,
         maximumContractPeriodComment,
