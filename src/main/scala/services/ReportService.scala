@@ -18,8 +18,7 @@
 package services
 
 import com.google.inject.ImplementedBy
-import dbrows._
-import models.{CompaniesHouseId, FiledReport, ReportId}
+import models.{CompaniesHouseId, Report, ReportId}
 import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
@@ -28,10 +27,10 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[ReportTable])
 trait ReportService {
-  def findFiled(id: ReportId): Future[Option[FiledReport]]
+  def find(id: ReportId): Future[Option[Report]]
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[FiledReport]]
+  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
 
-  def list(cutoffDate: LocalDate): Publisher[FiledReport]
+  def list(cutoffDate: LocalDate): Publisher[Report]
 
 }

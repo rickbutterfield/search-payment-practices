@@ -22,14 +22,14 @@ import javax.inject.Inject
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import config.PageConfig
-import models.FiledReport
+import models.Report
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
 import play.api.mvc.{Action, Controller, ResponseHeader, Result}
 import services.ReportService
 
 class DownloadController @Inject()(
-                                    reportRepo: ReportService,
+                                    reportService: ReportService,
                                     val pageConfig: PageConfig
                                   ) extends Controller with PageHelper {
 
@@ -40,7 +40,7 @@ class DownloadController @Inject()(
   def export = Action { request =>
     val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
 
-    val publisher = reportRepo.list(LocalDate.now().minusMonths(24))
+    val publisher = reportService.list(LocalDate.now().minusMonths(24))
 
     val headerSource = Source.single(ReportCSV.columns.map(_._1).mkString(","))
     val rowSource = Source.fromPublisher(publisher).map(toCsv)
@@ -50,5 +50,5 @@ class DownloadController @Inject()(
     Result(ResponseHeader(OK, Map()), entity).withHeaders(disposition)
   }
 
-  def toCsv(row: FiledReport): String = "\n" + ReportCSV.columns.map(_._2(row).s).mkString(",")
+  def toCsv(row: Report): String = "\n" + ReportCSV.columns.map(_._2(row).s).mkString(",")
 }
