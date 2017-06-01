@@ -70,7 +70,7 @@ object Report {
       PaymentHistory(averageDaysToPay, percentPaidLaterThanAgreedTerms, PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days)),
       offerEInvoicing,
       offerSupplyChainFinance,
-      retentionChargesInPast,
+      retentionChargesInPolicy,
       retentionChargesInPast
     )
   }
