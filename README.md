@@ -1,18 +1,8 @@
 # payment-practices-reporting
 [![CircleCI](https://circleci.com/gh/UKGovernmentBEIS/search-payment-practices.svg?style=svg)](https://circleci.com/gh/UKGovernmentBEIS/search-payment-practices)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5d60f6e72a2a4ae392e4ee2edd7c878e)](https://www.codacy.com/app/UKGovernmentBEIS/search-payment-practices?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=UKGovernmentBEIS/search-payment-practices&amp;utm_campaign=Badge_Grade)
 
 ## Configuration
-
-### Companies House API
-You'll need to obtain an API key for making calls to the Companies House API. Go to the 
-Companies House [developer hub](https://developer.companieshouse.gov.uk/api/docs/),
-register an account and create a new application. One of the pieces of information
-provided is an API key. You can provide this key to the application by setting the
-`COMPANIES_HOUSE_API_KEY` environment variable prior to starting `sbt`.
-
-Similarly, for production, inject the api key value into the environment with that
-env variable.
-
 
 ### Google Analytics
 
