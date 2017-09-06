@@ -48,7 +48,7 @@ class SearchController @Inject()(
   private val searchForReports = "Search for published payment practice reports"
   private val searchHeader    = h1(searchForReports)
   private val searchLink      = routes.SearchController.search(None, None, None).url
-  private val searchPageTitle = "Search for a company"
+  private val searchPageTitle = "Search for published payment practice reports"
 
   private def companyLink(id: CompaniesHouseId, pageNumber: Option[Int]) =
     routes.SearchController.company(id, pageNumber).url

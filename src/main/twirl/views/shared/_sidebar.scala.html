@@ -10,7 +10,7 @@
             <li><a href="@externalRouter.questionnaire()">
                 Find out if your business needs to publish reports</a></li>
             <li><a href="@externalRouter.calculate()">
-                Determine your reporting deadlines</a></li>
+                Calculate reporting periods and deadlines</a></li>
             <li><a href="@externalRouter.publish()">Publish a report</a></li>
         </ul>
 
@@ -18,8 +18,8 @@
             Read reports
         </h2>
         <ul class="list">
-            <li><a href="@controllers.routes.SearchController.search(None, None, None)">Search for a report</a></li>
-            <li><a href="@controllers.routes.DownloadController.show()">Download data for published reports</a></li>
+            <li><a href="@controllers.routes.SearchController.search(None, None, None)">Search for published payment practice reports</a></li>
+            <li><a href="@controllers.routes.DownloadController.show()">Export data for published reports</a></li>
         </ul>
 
     </aside>
