@@ -59,7 +59,7 @@ class SearchController @Inject()(
   //noinspection TypeAnnotation
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
-      page(searchPageTitle)(searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
+      page(searchPageTitle)(views.html.search.search(searchHeader, q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
 
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }

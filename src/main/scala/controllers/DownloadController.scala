@@ -34,7 +34,7 @@ class DownloadController @Inject()(
                                   ) extends Controller with PageHelper {
 
   def show = Action { implicit request =>
-    Ok(page("Export data for published reports")(home, views.html.download.accessData()))
+    Ok(page("Export data for published reports")(home, views.html.download.accessData(er)))
   }
 
   def export = Action { request =>
