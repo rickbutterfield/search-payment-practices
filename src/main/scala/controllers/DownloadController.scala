@@ -39,7 +39,7 @@ class DownloadController @Inject()(
 
   def export = Action { implicit request =>
     val urlFunction = { reportId: ReportId =>
-      routes.SearchController.view(reportId).absoluteURL()
+      routes.SearchController.view(reportId).absoluteURL(request.secure)
     }
 
     val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
