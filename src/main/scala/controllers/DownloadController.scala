@@ -22,33 +22,44 @@ import javax.inject.Inject
 import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import config.PageConfig
-import models.Report
+import models.{Report, ReportId}
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
-import play.api.mvc.{Action, Controller, ResponseHeader, Result}
+import play.api.mvc._
 import services.ReportService
 
 class DownloadController @Inject()(
-                                    reportService: ReportService,
-                                    val pageConfig: PageConfig
-                                  ) extends Controller with PageHelper {
+  reportService: ReportService,
+  val pageConfig: PageConfig
+) extends Controller with PageHelper {
 
   def show = Action { implicit request =>
     Ok(page("Export data for published reports")(home, views.html.download.accessData(er)))
   }
 
-  def export = Action { request =>
+  private def forwardedFromHttps(implicit rh: RequestHeader): Boolean = {
+    rh.headers.get("X-Forwarded-Proto") match {
+      case Some("https") => true
+      case _             => false
+    }
+  }
+
+  def export = Action { implicit request =>
+    val urlFunction = { reportId: ReportId =>
+      routes.SearchController.view(reportId).absoluteURL(request.secure || forwardedFromHttps)
+    }
+
     val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
 
     val publisher = reportService.list(LocalDate.now().minusMonths(24))
 
-    val headerSource = Source.single(ReportCSV.columns.map(_._1).mkString(","))
-    val rowSource = Source.fromPublisher(publisher).map(toCsv)
+    val headerSource = Source.single(ReportCSV.columns(urlFunction).map(_._1).mkString(","))
+    val rowSource = Source.fromPublisher(publisher).map(toCsv(_, urlFunction))
     val csvSource = Source.combine[String, String](headerSource, rowSource)(_ => Concat()).map(ByteString(_))
 
     val entity = HttpEntity.Streamed(csvSource, None, Some("text/csv"))
     Result(ResponseHeader(OK, Map()), entity).withHeaders(disposition)
   }
 
-  def toCsv(row: Report): String = "\n" + ReportCSV.columns.map(_._2(row).s).mkString(",")
+  def toCsv(row: Report, urlFunction: ReportId => String): String = "\n" + ReportCSV.columns(urlFunction).map(_._2(row).s).mkString(",")
 }
