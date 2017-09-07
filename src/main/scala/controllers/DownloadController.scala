@@ -25,7 +25,7 @@ import config.PageConfig
 import models.{Report, ReportId}
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
-import play.api.mvc.{Action, Controller, ResponseHeader, Result}
+import play.api.mvc._
 import services.ReportService
 
 class DownloadController @Inject()(
@@ -37,9 +37,16 @@ class DownloadController @Inject()(
     Ok(page("Export data for published reports")(home, views.html.download.accessData(er)))
   }
 
+  private def forwardedFromHttps(implicit rh: RequestHeader): Boolean = {
+    rh.headers.get("X-Forwarded-Proto") match {
+      case Some("https") => true
+      case _             => false
+    }
+  }
+
   def export = Action { implicit request =>
     val urlFunction = { reportId: ReportId =>
-      routes.SearchController.view(reportId).absoluteURL(request.secure)
+      routes.SearchController.view(reportId).absoluteURL(request.secure || forwardedFromHttps)
     }
 
     val disposition = ("Content-Disposition", "attachment;filename=payment-practices.csv")
