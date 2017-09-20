@@ -31,36 +31,40 @@ import services._
 import scala.concurrent.ExecutionContext
 
 class SearchController @Inject()(
-                                  val companySearch: CompanySearchService,
-                                  val reportService: ReportService,
-                                  val pageConfig: PageConfig
-                                )(implicit val ec: ExecutionContext)
+  val companySearch: CompanySearchService,
+  val reportService: ReportService,
+  val pageConfig: PageConfig
+)(implicit val ec: ExecutionContext)
   extends Controller
     with PageHelper
     with SearchHelper {
 
-  val df = DateTimeFormat.forPattern("d MMMM YYYY")
+  private val df = DateTimeFormat.forPattern("d MMMM YYYY")
 
   def start() = Action { implicit request =>
     Ok(page("Search payment practice reports")(views.html.search.start()))
   }
 
   private val searchForReports = "Search for published payment practice reports"
-  val searchHeader = h1(searchForReports)
-  val searchLink = routes.SearchController.search(None, None, None).url
-  val searchPageTitle = "Search for a company"
+  private val searchHeader    = h1(searchForReports)
+  private val searchLink      = routes.SearchController.search(None, None, None).url
+  private val searchPageTitle = "Search for published payment practice reports"
 
-  def companyLink(id: CompaniesHouseId, pageNumber: Option[Int]) = routes.SearchController.company(id, pageNumber).url
+  private def companyLink(id: CompaniesHouseId, pageNumber: Option[Int]) =
+    routes.SearchController.company(id, pageNumber).url
 
-  def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) = routes.SearchController.search(query, Some(pageNumber), itemsPerPage).url
+  private def pageLink(query: Option[String], itemsPerPage: Option[Int], pageNumber: Int) =
+    routes.SearchController.search(query, Some(pageNumber), itemsPerPage).url
 
+  //noinspection TypeAnnotation
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
-      page(searchPageTitle)(searchHeader, views.html.search.search(q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _)))
+      page(searchPageTitle)(views.html.search.search(searchHeader, q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
 
     doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
   }
 
+  //noinspection TypeAnnotation
   def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
     val result = for {
@@ -72,10 +76,11 @@ class SearchController @Inject()(
 
     result.value.map {
       case Some(r) => r
-      case None => NotFound
+      case None    => NotFound
     }
   }
 
+  //noinspection TypeAnnotation
   def view(reportId: ReportId) = Action.async { implicit request =>
     val f = for {
       report <- OptionT(reportService.find(reportId))
@@ -87,7 +92,7 @@ class SearchController @Inject()(
 
     f.value.map {
       case Some(ok) => ok
-      case None => NotFound
+      case None     => NotFound
     }
   }
 }

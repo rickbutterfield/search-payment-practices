@@ -40,6 +40,12 @@ object ServiceConfig {
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
+case class SurveyMonkeyConfig(feedbackFormCode: Option[String])
+
+object SurveyMonkeyConfig {
+  val empty = SurveyMonkeyConfig(None)
+}
+
 case class RoutesConfig(publishHost: Option[String])
 
 object RoutesConfig {
@@ -54,7 +60,7 @@ case class Config(
                    pageConfig: PageConfig
                  )
 
-case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, routesConfig: RoutesConfig)
+case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, routesConfig: RoutesConfig, surveyMonkeyConfig: SurveyMonkeyConfig)
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
@@ -77,6 +83,7 @@ class AppConfig @Inject()(configuration: Configuration) {
   val logRequests: Option[Boolean] = load[Boolean]("logRequests")
   val printDBTables: Option[Boolean] = load[Boolean]("printDBTables")
   val routesConfig: RoutesConfig = load[RoutesConfig]("externalRouter").getOrElse(RoutesConfig.empty)
+  val surveyMonkeyConfig: SurveyMonkeyConfig = load[SurveyMonkeyConfig]("surveyMonkey").getOrElse(SurveyMonkeyConfig.empty)
 
-  val config = Config(service, companiesHouse, logAssets, logRequests, PageConfig(googleAnalytics, routesConfig))
+  val config = Config(service, companiesHouse, logAssets, logRequests, PageConfig(googleAnalytics, routesConfig, surveyMonkeyConfig))
 }

@@ -1,13 +1,20 @@
+@(externalRouter: ExternalRouter)
 
-<div id="contentStart" class="scannable-wrapper">
-    <h1 class="heading-xlarge">
-        Access raw data
-    </h1>
-    <p class="lede">
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <div id="contentStart" class="scannable-wrapper">
+            <h1 class="heading-xlarge">
+                Export data for published reports
+            </h1>
+            <p class="lede">
         Download all reports published in the last 2 years.
-    </p>
+            </p>
 
-    <p>
-        <a href="@routes.DownloadController.export()" class="button">Get CSV file</a>
-    </p>
+            <p>
+                <a href="@routes.DownloadController.export()" class="button">Get CSV file</a>
+            </p>
+        </div>
+    </div>
+
+    @shared._sidebar(externalRouter)
 </div>

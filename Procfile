@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/search-payment-practices -Dhttp.port=${PORT}

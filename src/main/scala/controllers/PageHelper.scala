@@ -43,7 +43,7 @@ trait PageHelper {
 
   def page(title: String)(contents: Html*)(implicit pageContext: PageContext): Html = {
     val content = html(contents: _*)
-    views.html.templates.govukTemplateDefaults(title)(content)(pageContext)
+    views.html.templates.govukTemplateDefaults(title, pageConfig.surveyMonkeyConfig)(content)(pageContext)
   }
 
   def html(contents: Html*): Html = {

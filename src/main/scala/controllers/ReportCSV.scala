@@ -17,7 +17,7 @@
 
 package controllers
 
-import models.Report
+import models.{Report, ReportId}
 import org.joda.time.LocalDate
 import utils.YesNo
 
@@ -27,30 +27,41 @@ object ReportCSV {
 
   case class CSVString(s: String)
 
-  val charsThatNeedQuoting = Seq(',', '\n', '\r')
+  val charsThatNeedQuoting  = Seq(',', '\n', '\r')
   val charsThatNeedDoubling = Seq('"')
 
   def quote(s: String): String = s""""$s""""
 
   def escape(s: String): String = s match {
     case _ if charsThatNeedDoubling.exists(s.contains(_)) => quote(charsThatNeedDoubling.foldLeft(s) { case (t, c) => t.replace(s"$c", s"$c$c") })
-    case _ if charsThatNeedQuoting.exists(s.contains(_)) => quote(s)
-    case _ => s
+    case _ if charsThatNeedQuoting.exists(s.contains(_))  => quote(s)
+    case _                                                => s
   }
 
   implicit def stringToCSVString(s: String): CSVString = CSVString(escape(s))
+
   implicit def intToCSVString(i: Int): CSVString = CSVString(i.toString)
+
+  implicit def longToCSVString(l: Long): CSVString = CSVString(l.toString)
+
   implicit def decimalToCSVString(d: BigDecimal): CSVString = CSVString(d.toString)
+
   implicit def dateToCSVString(d: LocalDate): CSVString = CSVString(d.toString)
+
   implicit def booleanToCSVString(b: Boolean): CSVString = CSVString(b.toString)
+
   implicit def yesNoToCSVString(yn: YesNo): CSVString = yn.toBoolean
 
   implicit def optionToCSVString(o: Option[String]): CSVString = o.map(stringToCSVString).getOrElse(CSVString(""))
+
   implicit def optionIntToCSVString(o: Option[Int]): CSVString = o.map(intToCSVString).getOrElse(CSVString(""))
+
   implicit def optionYesNoToCSVString(o: Option[YesNo]): CSVString = o.map(yesNoToCSVString).getOrElse(CSVString(""))
+
   implicit def optionBooleanToCSVString(o: Option[Boolean]): CSVString = o.map(booleanToCSVString).getOrElse(CSVString(""))
 
-  def columns = Seq[(String, Report => CSVString)](
+  def columns(urlFunction: (ReportId => String)): Seq[(String, (Report) => CSVString)] = Seq[(String, Report => CSVString)](
+    ("Report Id", _.id.id),
     ("Start date", _.reportDates.startDate),
     ("End date", _.reportDates.endDate),
     ("Filing date", _.filingDate),
@@ -65,14 +76,10 @@ object ReportCSV {
     ("Supply-chain financing offered", _.contractDetails.map(_.offerSupplyChainFinance)),
     ("Policy covers charges for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPolicy)),
     ("Charges have been made for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPast)),
-    ("Payment terms", _.contractDetails.flatMap(_.paymentTerms.paymentTermsComment)),
     ("Maximum Contract Length", _.contractDetails.map(_.paymentTerms.maximumContractPeriod)),
     ("Payment terms have changed", _.contractDetails.map(_.paymentTerms.paymentTermsChanged.comment.isDefined)),
-    ("Payment terms have changed: comments", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.comment.text)),
     ("Suppliers notified of changes", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.notified.map(_.isDefined))),
-    ("Suppliers notified of changes: comments", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.notified.flatMap(_.text))),
-    ("Further remarks on payment terms", _.contractDetails.flatMap(_.paymentTerms.paymentTermsComment)),
-    ("Dispute resolution facilities", _.contractDetails.map(_.paymentTerms.disputeResolution)),
     ("Participates in payment codes", _.paymentCodes.isDefined),
-    ("Payment codes", _.paymentCodes.text))
+    ("URL", report => urlFunction(report.id))
+  )
 }

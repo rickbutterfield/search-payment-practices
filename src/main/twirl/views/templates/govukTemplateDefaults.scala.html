@@ -1,4 +1,4 @@
-@(htmlTitle: String)(content: Html)(pageContext: PageContext)
+@(htmlTitle: String, surveyMonkeyConfig: config.SurveyMonkeyConfig)(content: Html)(pageContext: PageContext)
 
 @head = {
 }
@@ -13,7 +13,7 @@
     bodyEnd = HtmlFormat.empty,
     insideHeader = HtmlFormat.empty,
     afterHeader = HtmlFormat.empty,
-    footerTop = shared._footer(pageContext.externalRouter),
+    footerTop = shared._footer(),
     footerLinks = HtmlFormat.empty,
     headerClass = Html("with-proposition"),
     propositionHeader = Html("<div class=\"header-proposition\"><div class=\"content\"><nav id=\"proposition-menu\"><a id=\"proposition-name\" href=\"/\">"
@@ -34,11 +34,13 @@
         <div class="phase-banner-beta">
             <p>
                 <strong class="phase-tag">BETA</strong>
-                <span>
-                    This is a new service – your
-                        <a rel="external" href="https://www.surveymonkey.co.uk/r/FCWW3MX">feedback</a>
+                @surveyMonkeyConfig.feedbackFormCode.map { code =>
+                    <span>
+                        This is a new service – your
+                        <a rel="external" href="https://www.surveymonkey.co.uk/r/@code">feedback</a>
                         will help us to improve it.
-                </span>
+                    </span>
+                }
             </p>
         </div>
         @content
