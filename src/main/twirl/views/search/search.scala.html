@@ -1,11 +1,10 @@
-@import services.CompanySearchResult
 @(
-        searchTerm: String,
-        resultsO: Option[PagedResults[CompanySearchResult]],
-        counts: Map[CompaniesHouseId, Int],
-        searchLink: String,
-        companyLink: models.CompaniesHouseId => String,
-        pageLink: Int => String
+    searchTerm: String,
+    resultsO: Option[PagedResults[services.CompanySearchResult]],
+    counts: Map[CompaniesHouseId, Int],
+    searchLink: String,
+    companyLink: models.CompaniesHouseId => String,
+    pageLink: Int => String
 )
 
 <div id="contentStart" class="scannable-wrapper">
@@ -22,14 +21,14 @@
 
             @if(results.items.nonEmpty) {
                 <ul class="searchresults">
-                @for(result <- results.items) {
-                    @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
-                }
+                    <p>
+                        @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
+                    </p>
+                    @for(result <- results.items) {
+                        @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
+                    }
                 </ul>
                 @shared._pageLinks(results, pageLink)
-                <p>
-                    @results.totalResults @(if(results.totalResults == 1) "match" else "matches") found
-                </p>
             }
         }
     }
