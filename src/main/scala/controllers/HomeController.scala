@@ -19,17 +19,21 @@ package controllers
 
 import javax.inject.Inject
 
-import config.PageConfig
+import config.{PageConfig, ServiceConfig}
 import play.api.mvc.{Action, Controller}
 
 class HomeController @Inject()(
-                                val pageConfig: PageConfig
-                              ) extends Controller with PageHelper {
+  val pageConfig: PageConfig,
+  serviceConfig: ServiceConfig
+) extends Controller with PageHelper {
 
   private val pageTitle = "Search published payment practices reports"
 
   def index = Action { request =>
-    Redirect(controllers.routes.HomeController.start())
+    serviceConfig.rootRedirectURL match {
+      case None      => Redirect(controllers.routes.HomeController.start())
+      case Some(url) => Redirect(url)
+    }
   }
 
   def start = Action { implicit request =>
