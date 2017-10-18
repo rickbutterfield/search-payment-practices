@@ -15,24 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services
+package controllers
 
-import com.google.inject.ImplementedBy
-import models.{CompaniesHouseId, Report, ReportId}
-import org.joda.time.LocalDate
-import org.reactivestreams.Publisher
-import slicks.repos.ReportTable
+import javax.inject.Inject
 
-import scala.concurrent.Future
+import play.api.libs.json.Json._
+import play.api.mvc.{Action, Controller}
+import services._
 
-@ImplementedBy(classOf[ReportTable])
-trait ReportService {
-  def find(id: ReportId): Future[Option[Report]]
+import scala.concurrent.ExecutionContext
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
-
-  def list(cutoffDate: LocalDate): Publisher[Report]
-
-  def count: Future[Int]
-
+class ApiController @Inject()(
+  val reportService: ReportService
+)(implicit val ec: ExecutionContext)
+  extends Controller {
+  //noinspection TypeAnnotation
+  def count = Action.async {
+    reportService.count.map(count => Ok(obj("reportCount" -> count)))
+  }
 }

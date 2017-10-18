@@ -17,3 +17,4 @@ GET        /export                     controllers.DownloadController.show
 GET        /export/csv                 controllers.DownloadController.export
 GET        /export/json                controllers.DownloadController.json
 
+GET        /api/reports/count          controllers.ApiController.count
