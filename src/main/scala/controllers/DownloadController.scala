@@ -19,12 +19,14 @@ package controllers
 
 import javax.inject.Inject
 
-import akka.stream.scaladsl.{Concat, Source}
+import akka.NotUsed
+import akka.stream.scaladsl.{Concat, Flow, Source}
 import akka.util.ByteString
 import config.PageConfig
 import models.{Report, ReportId}
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.ReportService
 
@@ -62,4 +64,15 @@ class DownloadController @Inject()(
   }
 
   def toCsv(row: Report, urlFunction: ReportId => String): String = "\n" + ReportCSV.columns(urlFunction).map(_._2(row).s).mkString(",")
+
+  def json = Action { implicit request =>
+    val publisher = reportService.list(LocalDate.now().minusMonths(24))
+
+    val rowSource = Source.fromPublisher(publisher)
+      .map(row => ByteString(Json.prettyPrint(Json.toJson(row))))
+      .via(Flow[ByteString].intersperse(ByteString("["), ByteString(","), ByteString("]")))
+
+    val entity = HttpEntity.Streamed(rowSource, None, Some("application/json"))
+    Result(ResponseHeader(OK, Map()), entity)
+  }
 }
