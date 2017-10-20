@@ -64,15 +64,4 @@ class DownloadController @Inject()(
   }
 
   def toCsv(row: Report, urlFunction: ReportId => String): String = "\n" + ReportCSV.columns(urlFunction).map(_._2(row).s).mkString(",")
-
-  def json = Action { implicit request =>
-    val publisher = reportService.list(LocalDate.now().minusMonths(24))
-
-    val rowSource = Source.fromPublisher(publisher)
-      .map(row => ByteString(Json.prettyPrint(Json.toJson(row))))
-      .via(Flow[ByteString].intersperse(ByteString("["), ByteString(","), ByteString("]")))
-
-    val entity = HttpEntity.Streamed(rowSource, None, Some("application/json"))
-    Result(ResponseHeader(OK, Map()), entity)
-  }
 }
