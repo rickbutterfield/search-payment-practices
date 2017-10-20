@@ -17,28 +17,32 @@
 
 package models
 
+import com.wellfactored.playbindings.ValueClassFormats
 import dbrows.{ContractDetailsRow, ReportRow}
 import forms.DateRange
 import forms.report._
 import org.joda.time.LocalDate
+import play.api.libs.json.{Json, OWrites}
 import utils.YesNo
 
 case class Report(
-                   id: ReportId,
-                   companyName: String,
-                   companyId: CompaniesHouseId,
-                   filingDate: LocalDate,
+  id: ReportId,
+  companyName: String,
+  companyId: CompaniesHouseId,
+  filingDate: LocalDate,
 
-                   approvedBy: String,
-                   confirmationEmailAddress: String,
+  approvedBy: String,
+  confirmationEmailAddress: String,
 
-                   reportDates: DateRange,
-                   paymentCodes: ConditionalText,
+  reportDates: DateRange,
+  paymentCodes: ConditionalText,
 
-                   contractDetails: Option[ContractDetails]
-                 )
+  contractDetails: Option[ContractDetails]
+)
 
-object Report {
+object Report extends ValueClassFormats {
+  implicit val write: OWrites[Report] = Json.writes[Report]
+
   def apply(r: (ReportRow, Option[ContractDetailsRow])): Report = {
     val (reportRow, contractDetailsRow) = r
     import reportRow._
@@ -78,10 +82,14 @@ object Report {
 }
 
 case class ContractDetails(
-                            paymentTerms: PaymentTerms,
-                            paymentHistory: PaymentHistory,
-                            offerEInvoicing: YesNo,
-                            offerSupplyChainFinance: YesNo,
-                            retentionChargesInPolicy: YesNo,
-                            retentionChargesInPast: YesNo
-                          )
+  paymentTerms: PaymentTerms,
+  paymentHistory: PaymentHistory,
+  offerEInvoicing: YesNo,
+  offerSupplyChainFinance: YesNo,
+  retentionChargesInPolicy: YesNo,
+  retentionChargesInPast: YesNo
+)
+
+object ContractDetails {
+  implicit def writes: OWrites[ContractDetails] = Json.writes[ContractDetails]
+}

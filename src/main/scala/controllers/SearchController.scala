@@ -22,9 +22,9 @@ import javax.inject.Inject
 import cats.data.OptionT
 import cats.instances.future._
 import config.PageConfig
-import models.{CompaniesHouseId, PagedResults, ReportId}
+import models.{CompaniesHouseId, PagedResults, Report, ReportId}
 import org.joda.time.format.DateTimeFormat
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
 import services._
 
@@ -46,9 +46,9 @@ class SearchController @Inject()(
   }
 
   private val searchForReports = "Search for published payment practice reports"
-  private val searchHeader    = h1(searchForReports)
-  private val searchLink      = routes.SearchController.search(None, None, None).url
-  private val searchPageTitle = "Search for published payment practice reports"
+  private val searchHeader     = h1(searchForReports)
+  private val searchLink       = routes.SearchController.search(None, None, None).url
+  private val searchPageTitle  = "Search for published payment practice reports"
 
   private def companyLink(id: CompaniesHouseId, pageNumber: Option[Int]) =
     routes.SearchController.company(id, pageNumber).url
@@ -82,17 +82,15 @@ class SearchController @Inject()(
 
   //noinspection TypeAnnotation
   def view(reportId: ReportId) = Action.async { implicit request =>
-    val f = for {
-      report <- OptionT(reportService.find(reportId))
-    } yield {
-      val companyCrumb = Breadcrumb(routes.SearchController.company(report.companyId, None), s"${report.companyName} reports")
-      val crumbs = breadcrumbs(homeBreadcrumb, companyCrumb)
-      Ok(page(s"Payment practice report for ${report.companyName}")(crumbs, views.html.search.report(report, df)))
+    reportService.find(reportId).map {
+      case None         => NotFound
+      case Some(report) => renderHtml(report)
     }
+  }
 
-    f.value.map {
-      case Some(ok) => ok
-      case None     => NotFound
-    }
+  private def renderHtml(report: Report)(implicit pageContext: PageContext): Result = {
+    val companyCrumb = Breadcrumb(routes.SearchController.company(report.companyId, None), s"${report.companyName} reports")
+    val crumbs = breadcrumbs(homeBreadcrumb, companyCrumb)
+    Ok(page(s"Payment practice report for ${report.companyName}")(crumbs, views.html.search.report(report, df)))
   }
 }

@@ -33,4 +33,6 @@ trait ReportService {
 
   def list(cutoffDate: LocalDate): Publisher[Report]
 
+  def count: Future[Int]
+
 }

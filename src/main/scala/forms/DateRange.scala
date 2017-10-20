@@ -19,6 +19,7 @@ package forms
 
 import org.joda.time.{LocalDate, Months}
 import org.scalactic.TripleEquals._
+import play.api.libs.json.{Json, OFormat}
 
 case class DateRange(startDate: LocalDate, endDate: LocalDate) {
   def startsOnOrAfter(localDate: LocalDate): Boolean = !startDate.isBefore(localDate)
@@ -36,4 +37,8 @@ case class DateRange(startDate: LocalDate, endDate: LocalDate) {
     else
       input.plusMonths(months)
   }
+}
+
+object DateRange {
+  implicit val format: OFormat[DateRange] = Json.format
 }

@@ -16,3 +16,6 @@ GET        /report/:reportId           controllers.SearchController.view(reportI
 GET        /export                     controllers.DownloadController.show
 GET        /export/csv                 controllers.DownloadController.export
 
+GET        /reports                    controllers.ReportsController.reports
+GET        /reports/count              controllers.ReportsController.count
+GET        /reports/:reportId          controllers.ReportsController.report(reportId: ReportId)

@@ -21,6 +21,7 @@ import dbrows.ContractDetailsRow
 import forms.DateRange
 import models.ContractDetails
 import org.scalactic.TripleEquals._
+import play.api.libs.json.{Json, OWrites}
 import utils.YesNo
 import utils.YesNo.{No, Yes}
 
@@ -31,8 +32,8 @@ object ReportConstants {
     */
   val averageWordLength = 7
 
-  val longTerms = 5000
-  val longComment = 2000
+  val longTerms    = 5000
+  val longComment  = 2000
   val shortComment = 500
 
   val paymentTermsWordCount = longTerms
@@ -59,9 +60,9 @@ object ReportConstants {
 
 case class ConditionalText(yesNo: YesNo, text: Option[String]) {
   def normalize = this match {
-    case ConditionalText(No, _) => ConditionalText(No, None)
+    case ConditionalText(No, _)                           => ConditionalText(No, None)
     case ConditionalText(Yes, Some(t)) if t.trim() === "" => ConditionalText(Yes, None)
-    case _ => this
+    case _                                                => this
   }
 
   def isDefined: Boolean = yesNo.toBoolean
@@ -72,23 +73,31 @@ object ConditionalText {
     o.map(s => ConditionalText(Yes, Some(s))).getOrElse(ConditionalText(No, None))
 
   def apply(s: String): ConditionalText = ConditionalText(Some(s))
+
+  implicit val writes: OWrites[ConditionalText] = Json.writes[ConditionalText]
 }
 
 case class PercentageSplit(
-                            percentWithin30Days: Int,
-                            percentWithin60Days: Int,
-                            percentBeyond60Days: Int
-                          ) {
+  percentWithin30Days: Int,
+  percentWithin60Days: Int,
+  percentBeyond60Days: Int
+) {
   def total: Int = percentWithin30Days + percentWithin60Days + percentBeyond60Days
 }
 
+object PercentageSplit {
+  implicit val writes: OWrites[PercentageSplit] = Json.writes[PercentageSplit]
+}
+
 case class PaymentHistory(
-                           averageDaysToPay: Int,
-                           percentPaidLaterThanAgreedTerms: Int,
-                           percentageSplit: PercentageSplit
-                         )
+  averageDaysToPay: Int,
+  percentPaidLaterThanAgreedTerms: Int,
+  percentageSplit: PercentageSplit
+)
 
 object PaymentHistory {
+  implicit val writes: OWrites[PaymentHistory] = Json.writes[PaymentHistory]
+
   def apply(row: ContractDetailsRow): PaymentHistory =
     PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
@@ -99,24 +108,29 @@ case class PaymentTermsChanged(comment: ConditionalText, notified: Option[Condit
     */
   def normalise = this match {
     case PaymentTermsChanged(c@ConditionalText(No, _), _) => PaymentTermsChanged(c, None)
-    case _ => this
+    case _                                                => this
   }
 }
 
+object PaymentTermsChanged {
+  implicit val writes: OWrites[PaymentTermsChanged] = Json.writes[PaymentTermsChanged]
+}
+
 case class PaymentTerms(
-                         shortestPaymentPeriod: Int,
-                         longestPaymentPeriod: Option[Int],
-                         terms: String,
-                         maximumContractPeriod: Int,
-                         maximumContractPeriodComment: Option[String],
-                         paymentTermsChanged: PaymentTermsChanged,
-                         paymentTermsComment: Option[String],
-                         disputeResolution: String
-                       )
+  shortestPaymentPeriod: Int,
+  longestPaymentPeriod: Option[Int],
+  terms: String,
+  maximumContractPeriod: Int,
+  maximumContractPeriodComment: Option[String],
+  paymentTermsChanged: PaymentTermsChanged,
+  paymentTermsComment: Option[String],
+  disputeResolution: String
+)
 
 object PaymentTerms {
   def apply(row: ContractDetailsRow): PaymentTerms =
-    PaymentTerms(row.shortestPaymentPeriod, row.longestPaymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
+    PaymentTerms(
+      row.shortestPaymentPeriod, row.longestPaymentPeriod, row.paymentTerms, row.maximumContractPeriod, row.maximumContractPeriodComment,
       pt(row),
       row.paymentTermsChangedComment,
       row.disputeResolution
@@ -130,26 +144,28 @@ object PaymentTerms {
 
     PaymentTermsChanged(comment, notified)
   }
+
+  implicit val writes: OWrites[PaymentTerms] = Json.writes[PaymentTerms]
 }
 
 case class ReportingPeriodFormModel(
-                                     reportDates: DateRange,
-                                     hasQualifyingContracts: YesNo
-                                   )
+  reportDates: DateRange,
+  hasQualifyingContracts: YesNo
+)
 
 case class ShortFormModel(
-                           paymentCodes: ConditionalText
-                         )
+  paymentCodes: ConditionalText
+)
 
 case class LongFormModel(
-                          paymentHistory: PaymentHistory,
-                          paymentTerms: PaymentTerms,
-                          offerEInvoicing: YesNo,
-                          offerSupplyChainFinancing: YesNo,
-                          retentionChargesInPolicy: YesNo,
-                          retentionChargesInPast: YesNo,
-                          paymentCodes: ConditionalText
-                        )
+  paymentHistory: PaymentHistory,
+  paymentTerms: PaymentTerms,
+  offerEInvoicing: YesNo,
+  offerSupplyChainFinancing: YesNo,
+  retentionChargesInPolicy: YesNo,
+  retentionChargesInPast: YesNo,
+  paymentCodes: ConditionalText
+)
 
 object LongFormModel {
   def apply(paymentCodes: ConditionalText, report: ContractDetails): LongFormModel = {
@@ -166,9 +182,9 @@ object LongFormModel {
 }
 
 case class ReportReviewModel(
-                              confirmedBy: String,
-                              confirmed: Boolean
-                            )
+  confirmedBy: String,
+  confirmed: Boolean
+)
 
 
 
