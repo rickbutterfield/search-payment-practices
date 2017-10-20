@@ -24,7 +24,6 @@ import cats.instances.future._
 import config.PageConfig
 import models.{CompaniesHouseId, PagedResults, Report, ReportId}
 import org.joda.time.format.DateTimeFormat
-import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
 import services._
@@ -83,24 +82,13 @@ class SearchController @Inject()(
 
   //noinspection TypeAnnotation
   def view(reportId: ReportId) = Action.async { implicit request =>
-    val f = for {
-      report <- OptionT(reportService.find(reportId))
-    } yield {
-      if (request.acceptedTypes.exists(_.accepts("application/json"))) renderJson(report)
-      else renderHtml(report)
-    }
-
-    f.value.map {
-      case Some(ok) => ok
-      case None     => NotFound
+    reportService.find(reportId).map {
+      case None         => NotFound
+      case Some(report) => renderHtml(report)
     }
   }
 
-  private def renderJson(report: Report): Result = {
-    Ok(Json.toJson(report))
-  }
-
-  private def renderHtml(report: Report)(implicit pageContext:PageContext): Result = {
+  private def renderHtml(report: Report)(implicit pageContext: PageContext): Result = {
     val companyCrumb = Breadcrumb(routes.SearchController.company(report.companyId, None), s"${report.companyName} reports")
     val crumbs = breadcrumbs(homeBreadcrumb, companyCrumb)
     Ok(page(s"Payment practice report for ${report.companyName}")(crumbs, views.html.search.report(report, df)))
