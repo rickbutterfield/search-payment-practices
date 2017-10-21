@@ -20,6 +20,9 @@ resolvers += Resolver.bintrayRepo("gov-uk-notify", "maven")
 
 libraryDependencies ++= Seq(
   ws,
+  "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided",
+  "com.softwaremill.macwire" %% "macrosakka" % "2.3.0" % "provided",
+  "com.softwaremill.macwire" %% "util" % "2.3.0",
   "com.wellfactored" %% "play-bindings" % "2.0.0",
   "com.wellfactored" %% "slick-gen" % "0.0.4",
   "com.github.melrief" %% "pureconfig" % "0.4.0",
