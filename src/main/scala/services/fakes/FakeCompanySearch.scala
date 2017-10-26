@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package services.mocks
+package services.fakes
 
 import javax.inject.Inject
 
@@ -25,7 +25,7 @@ import services.{CompanySearchResult, CompanySearchService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MockCompanySearch @Inject()(implicit ec: ExecutionContext) extends CompanySearchService {
+class FakeCompanySearch @Inject()(implicit ec: ExecutionContext) extends CompanySearchService {
 
   val companies: Seq[CompanySearchResult] = Seq(
     CompanySearchResult(CompaniesHouseId("000000001"), "The Testing Company", Some("1 Testing Way, Mockington, Stubshire")),

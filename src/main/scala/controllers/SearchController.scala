@@ -67,9 +67,18 @@ class SearchController @Inject()(
   //noinspection TypeAnnotation
   def company(companiesHouseId: CompaniesHouseId, pageNumber: Option[Int]) = Action.async { implicit request =>
     val pageLink = { i: Int => routes.SearchController.company(companiesHouseId, Some(i)).url }
+
+
+    /*
+     * These futures can run concurrently. I'd like to use the cats `mapN` syntax on a tuple instead of a
+     * for-comprehension, but IntelliJ doesn't parse it yet!
+     */
+    val f1 = companySearch.find(companiesHouseId)
+    val f2 = reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs, pageNumber.getOrElse(1)))
+
     val result = for {
-      co <- OptionT(companySearch.find(companiesHouseId))
-      rs <- OptionT.liftF(reportService.byCompanyNumber(companiesHouseId).map(rs => PagedResults.page(rs, pageNumber.getOrElse(1))))
+      co <- OptionT(f1)
+      rs <- OptionT.liftF(f2)
     } yield {
       Ok(page(s"Payment practice reports for ${co.companyName}")(home, views.html.search.company(co, rs, pageLink, df)))
     }

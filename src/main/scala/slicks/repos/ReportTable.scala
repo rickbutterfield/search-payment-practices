@@ -67,5 +67,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
 
-  def count: Future[Int] = db.run(reportTable.length.result)
+  override def count(companiesHouseId: CompaniesHouseId): Future[Int] = db.run(reportTable.filter(_.companyId === companiesHouseId).length.result)
+
+  override def count: Future[Int] = db.run(reportTable.length.result)
 }

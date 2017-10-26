@@ -25,7 +25,7 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.routing.Router
 import router.Routes
 import services.live.CompaniesHouseSearch
-import services.mocks.MockCompanySearch
+import services.fakes.FakeCompanySearch
 import services.{CompanySearchService, ReportService}
 import slick.basic.BasicProfile
 import slicks.repos.ReportTable
@@ -75,6 +75,6 @@ trait AppComponents extends BuiltInComponents
     case Some(c) => wire[CompaniesHouseSearch]
     case None    =>
       Logger.debug("Wiring in Company Search Mock")
-      wire[MockCompanySearch]
+      wire[FakeCompanySearch]
   }
 }

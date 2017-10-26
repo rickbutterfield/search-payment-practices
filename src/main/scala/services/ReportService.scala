@@ -35,4 +35,6 @@ trait ReportService {
 
   def count: Future[Int]
 
+  def count(companiesHouseId: CompaniesHouseId): Future[Int]
+
 }

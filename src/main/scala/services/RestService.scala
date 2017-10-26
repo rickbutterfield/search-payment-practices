@@ -124,7 +124,9 @@ object RestService {
   case class JsonParseException(method: String, request: WSRequest, response: WSResponse, errs: Seq[(JsPath, Seq[ValidationError])]) extends Exception
 
   case class RestFailure(method: String, request: WSRequest, response: WSResponse) extends Exception {
-    val status = response.status
+    val status: Int = response.status
+
+    override def getMessage: String = response.statusText
   }
 
 }

@@ -39,7 +39,7 @@ class ErrorHandler @Inject()(
   extends DefaultHttpErrorHandler(env, conf, sourceMapper, router)
     with PageHelper {
 
-  override protected def onProdServerError(request: RequestHeader, exception: UsefulException) = {
+  override protected def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
     implicit val r = request
     Future.successful(InternalServerError(page("Something went wrong at our end")(home, views.html.errors.error500())))
   }

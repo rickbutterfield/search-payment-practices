@@ -17,6 +17,9 @@
 
 package controllers
 
+import cats.instances.future._
+import cats.instances.list._
+import cats.syntax.traverse._
 import models.{CompaniesHouseId, PagedResults}
 import play.twirl.api.Html
 import services.{CompanySearchResult, CompanySearchService, ReportService}
@@ -32,15 +35,14 @@ trait SearchHelper {
 
   type ResultsPageFunction = (String, Option[PagedResults[CompanySearchResult]], Map[CompaniesHouseId, Int]) => Html
 
-  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction) = {
+  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction): Future[Html] = {
     query match {
-      case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
-        val countsF = results.items.map { result =>
-          reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.length))
+      case Some(q) =>
+        companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25)).flatMap { results =>
+          results.items.toList.traverse[Future, (CompaniesHouseId, Int)] { result =>
+            reportService.count(result.companiesHouseId).map(c => (result.companiesHouseId, c))
+          }.map(counts => resultsPage(q, Some(results), Map(counts: _*)))
         }
-
-        Future.sequence(countsF).map(counts => resultsPage(q, Some(results), Map(counts: _*)))
-      }
 
       case None => Future.successful(resultsPage("", None, Map.empty))
     }
