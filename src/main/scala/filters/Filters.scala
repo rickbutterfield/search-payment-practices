@@ -26,8 +26,8 @@ import play.api.http.DefaultHttpFilters
   * the play configuration.
   */
 class Filters @Inject()(
-                         tls: TLSFilter,
-                         log: LoggingFilter,
-                         rest: RestErrorFilter,
-                         securityHeadersFilter: SecurityHeadersFilter
-                       ) extends DefaultHttpFilters(log, tls, rest, securityHeadersFilter)
+  tls: TLSFilter,
+  log: LoggingFilter,
+  rest: RestErrorFilter,
+  securityHeadersFilter: SecurityHeadersFilter
+) extends DefaultHttpFilters(log, tls, securityHeadersFilter)

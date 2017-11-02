@@ -20,12 +20,15 @@ package config
 import javax.inject.{Inject, Singleton}
 
 import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.Configuration
 
 import scala.util.Try
 
-case class CompaniesHouseConfig(apiKey: String)
+case class CompaniesHouseConfig(apiKey: String, hostname: Option[String], secure: Option[Boolean]) {
+  val getHostname: String = hostname.getOrElse("api.companieshouse.gov.uk")
+  val getProtocol: String = if (secure.getOrElse(true)) "https" else "http"
+}
 
 case class GoogleAnalyticsConfig(code: Option[String])
 
@@ -64,7 +67,7 @@ case class PageConfig(googleAnalyticsConfig: GoogleAnalyticsConfig, routesConfig
 
 @Singleton
 class AppConfig @Inject()(configuration: Configuration) {
-  val df = DateTimeFormat.forPattern("yyyy-M-d")
+  val df: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-M-d")
 
   import pureconfig._
   import ConfigConvert._
