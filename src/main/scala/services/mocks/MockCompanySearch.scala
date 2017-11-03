@@ -23,6 +23,7 @@ import models.{CompaniesHouseId, CompanyDetail, PagedResults}
 import org.scalactic.TripleEquals._
 import services.{CompanySearchResult, CompanySearchService}
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 class MockCompanySearch @Inject()(implicit ec: ExecutionContext) extends CompanySearchService {
@@ -32,7 +33,7 @@ class MockCompanySearch @Inject()(implicit ec: ExecutionContext) extends Company
     CompanySearchResult(CompaniesHouseId("000000002"), "Another company", Some("1 Any Other Way, Stubbsville, Mockshire, ST13 3MO"))
   )
 
-  override def searchCompanies(search: String, page: Int, itemsPerPage: Int): Future[PagedResults[CompanySearchResult]] = Future {
+  override def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Option[Duration]): Future[PagedResults[CompanySearchResult]] = Future {
     PagedResults.page(companies.filter(_.companyName.toLowerCase.contains(search.toLowerCase)), 1)
   }
 

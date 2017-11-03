@@ -23,6 +23,7 @@ import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import services.RestService.{JsonParseException, RestFailure}
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RestService {
@@ -57,8 +58,17 @@ trait RestService {
     result
   }
 
-  def get[A: Reads](url: String, auth: String): Future[A] = {
-    val request: WSRequest = ws.url(url).withHeaders((authorizationHeader, auth))
+  implicit class RequestSyntax(request: WSRequest) {
+    def withRequestTimeout(requestTimeout: Option[Duration]): WSRequest =
+      requestTimeout match {
+        case Some(dur) => request.withRequestTimeout(dur)
+        case None      => request
+      }
+  }
+
+  def get[A: Reads](url: String, auth: String, requestTimeout: Option[Duration] = None): Future[A] = {
+    val request: WSRequest = ws.url(url).withHeaders((authorizationHeader, auth)).withRequestTimeout(requestTimeout)
+
     loggingAndTiming("GET", request) {
       request.get.map { response =>
         response.status match {
@@ -120,11 +130,13 @@ trait RestService {
 }
 
 object RestService {
-
-  case class JsonParseException(method: String, request: WSRequest, response: WSResponse, errs: Seq[(JsPath, Seq[ValidationError])]) extends Exception
-
-  case class RestFailure(method: String, request: WSRequest, response: WSResponse) extends Exception {
-    val status = response.status
+  case class JsonParseException(method: String, request: WSRequest, response: WSResponse, errs: Seq[(JsPath, Seq[ValidationError])]) extends Exception {
+    override def getMessage: String = s"Failed to parse Json response '${response.body}'"
   }
 
+  case class RestFailure(method: String, request: WSRequest, response: WSResponse) extends Exception {
+    override def getMessage: String = s"$method to ${request.url} failed with ${response.status}\n${response.statusText}"
+
+    val status: Int = response.status
+  }
 }

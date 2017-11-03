@@ -27,6 +27,8 @@ import org.joda.time.format.DateTimeFormat
 import play.api.mvc.{Action, Controller, Result}
 import play.twirl.api.Html
 import services._
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 import scala.concurrent.ExecutionContext
 
@@ -59,9 +61,12 @@ class SearchController @Inject()(
   //noinspection TypeAnnotation
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
     def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
-      page(searchPageTitle)(views.html.search.search(searchHeader, q, results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
+      page(searchPageTitle)(views.html.search.search(searchHeader, q, None,  results, countMap, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
 
-    doSearch(query, pageNumber, itemsPerPage, resultsPage).map(Ok(_))
+    def resultsError(q: String, errorMessage: String) =
+      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, Some(errorMessage), None, Map(), searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
+
+    doSearch(query, pageNumber, itemsPerPage, resultsPage, resultsError, Some(20 seconds)).map(Ok(_))
   }
 
   //noinspection TypeAnnotation
