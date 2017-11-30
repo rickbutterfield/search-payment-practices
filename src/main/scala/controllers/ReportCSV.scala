@@ -72,16 +72,16 @@ object ReportCSV {
     ("% Invoices paid within 60 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentWithin60Days)),
     ("% Invoices paid later than 60 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentBeyond60Days)),
     ("% Invoices not paid within agreed terms", _.contractDetails.map(_.paymentHistory.percentPaidLaterThanAgreedTerms)),
-    ("E-Invoicing offered", _.contractDetails.map(_.offerEInvoicing)),
-    ("Supply-chain financing offered", _.contractDetails.map(_.offerSupplyChainFinance)),
-    ("Policy covers charges for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPolicy)),
-    ("Charges have been made for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPast)),
     ("Shortest (or only) standard payment period", _.contractDetails.map(_.paymentTerms.shortestPaymentPeriod)),
     ("Longest standard payment period", _.contractDetails.flatMap(_.paymentTerms.longestPaymentPeriod)),
     ("Maximum Contract Length", _.contractDetails.map(_.paymentTerms.maximumContractPeriod)),
     ("Payment terms have changed", _.contractDetails.map(_.paymentTerms.paymentTermsChanged.comment.isDefined)),
     ("Suppliers notified of changes", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.notified.map(_.isDefined))),
     ("Participates in payment codes", _.paymentCodes.isDefined),
+    ("E-Invoicing offered", _.contractDetails.map(_.offerEInvoicing)),
+    ("Supply-chain financing offered", _.contractDetails.map(_.offerSupplyChainFinance)),
+    ("Policy covers charges for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPolicy)),
+    ("Charges have been made for remaining on supplier list", _.contractDetails.map(_.retentionChargesInPast)),
     ("URL", report => urlFunction(report.id))
   )
 }
