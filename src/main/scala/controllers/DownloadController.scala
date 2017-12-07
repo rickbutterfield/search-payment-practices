@@ -19,14 +19,12 @@ package controllers
 
 import javax.inject.Inject
 
-import akka.NotUsed
-import akka.stream.scaladsl.{Concat, Flow, Source}
+import akka.stream.scaladsl.{Concat, Source}
 import akka.util.ByteString
 import config.PageConfig
 import models.{Report, ReportId}
 import org.joda.time.LocalDate
 import play.api.http.HttpEntity
-import play.api.libs.json.Json
 import play.api.mvc._
 import services.ReportService
 
