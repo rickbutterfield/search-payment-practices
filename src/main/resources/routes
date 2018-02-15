@@ -1,21 +1,23 @@
-GET        /assets/*file               controllers.Assets.at(path="/public", file)
-GET        /public/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file                       controllers.Assets.at(path="/public", file)
+GET         /public/*file                       controllers.Assets.at(path="/public", file)
 
-GET        /                           controllers.HomeController.index()
+GET         /                                   controllers.HomeController.index()
 
-GET        /start                      controllers.HomeController.start()
+GET         /start                              controllers.HomeController.start()
 
-GET        /robots.txt                 controllers.HomeController.robots()
+GET         /robots.txt                         controllers.HomeController.robots()
 
-GET        /wip                        controllers.Default.todo
+GET         /wip                                controllers.Default.todo
 
-GET        /search                     controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
-GET        /company/:id/reports        controllers.SearchController.company(id:CompaniesHouseId, page:Option[Int])
-GET        /report/:reportId           controllers.SearchController.view(reportId: ReportId)
+GET         /search                             controllers.SearchController.search(q:Option[String], page:Option[Int], items_per_page:Option[Int])
+GET         /company/:id/reports                controllers.SearchController.company(id:CompaniesHouseId, page:Option[Int])
+GET         /report/:reportId                   controllers.SearchController.view(reportId: ReportId)
 
-GET        /export                     controllers.DownloadController.show
-GET        /export/csv                 controllers.DownloadController.export
+GET         /export                             controllers.DownloadController.show
+GET         /export/csv                         controllers.DownloadController.export
 
-GET        /reports                    controllers.ReportsController.reports
-GET        /reports/count              controllers.ReportsController.count
-GET        /reports/:reportId          controllers.ReportsController.report(reportId: ReportId)
+GET         /reports                            controllers.ReportsController.reports
+GET         /reports/count                      controllers.ReportsController.count
+GET         /reports/:reportId                  controllers.ReportsController.report(reportId: ReportId)
+POST        /reports/:reportId/archive          controllers.ReportsController.archive(reportId: ReportId)
+POST        /reports/:reportId/unarchive        controllers.ReportsController.unarchive(reportId: ReportId)

@@ -26,4 +26,7 @@ trait ReportQueries {
 
   val activeReportQuery  = reportTable.filter(_.archivedOn.isEmpty).joinLeft(contractDetailsTable).on(_.id === _.reportId)
   val activeReportQueryC = Compiled(activeReportQuery)
+
+  val archivedReportQuery  = reportTable.filter(_.archivedOn.isDefined).joinLeft(contractDetailsTable).on(_.id === _.reportId)
+  val archivedReportQueryC = Compiled(archivedReportQuery)
 }

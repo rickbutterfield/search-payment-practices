@@ -19,8 +19,9 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import models.{CompaniesHouseId, Report, ReportId}
-import org.joda.time.LocalDate
+import dbrows.CommentRow
+import models.{CommentId, CompaniesHouseId, Report, ReportId}
+import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.ReportService
@@ -43,10 +44,18 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   //noinspection TypeAnnotation
   def activeReportByIdQ(reportId: Rep[ReportId]) = activeReportQuery.filter(_._1.id === reportId)
 
-  val activeReportByIdC = Compiled(activeReportByIdQ _)
+  //noinspection TypeAnnotation
+  def archivedReportByIdQ(reportId: Rep[ReportId]) = archivedReportQuery.filter(_._1.id === reportId)
 
-  def find(id: ReportId): Future[Option[Report]] = db.run {
+  val activeReportByIdC   = Compiled(activeReportByIdQ _)
+  val archivedReportByIdC = Compiled(archivedReportByIdQ _)
+
+  override def find(id: ReportId): Future[Option[Report]] = db.run {
     activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
+  }
+
+  def findArchived(id: ReportId): Future[Option[Report]] = db.run {
+    archivedReportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
   //noinspection TypeAnnotation
@@ -54,7 +63,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
 
   val reportByCoNoC = Compiled(activeReportByCoNoQ _)
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
+  override def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
     reportByCoNoC(companiesHouseId).result.map(_.map(Report.apply))
   }
 
@@ -62,12 +71,36 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate): Publisher[Report] = {
+  override def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
     val action = activeReportQueryC.result.withStatementParameters(fetchSize = 10000)
 
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
 
-  def count: Future[Int] = db.run(activeReportQuery.length.result)
+  override def count: Future[Int] = db.run(activeReportQuery.length.result)
+
+  override def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
+    find(id).flatMap {
+      case Some(report) => db.run {
+        for {
+          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
+          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+        } yield updateCount
+      }
+
+      case None => Future.successful(0)
+    }
+
+  override def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
+    findArchived(id).flatMap {
+      case Some(report) => db.run {
+        for {
+          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(None)
+          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
+        } yield updateCount
+      }
+
+      case None => Future.successful(0)
+    }
 }

@@ -19,7 +19,6 @@ import javax.inject._
 
 import config.PageConfig
 import controllers.PageHelper
-import org.scalactic.TripleEquals._
 import play.api._
 import play.api.http.DefaultHttpErrorHandler
 import play.api.mvc.Results._
@@ -51,7 +50,7 @@ class ErrorHandler @Inject()(
 
   override protected def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     implicit val r: RequestHeader = request
-    if (env.mode !== Mode.Prod) super.onNotFound(request, message)
+    if (env.mode != Mode.Prod) super.onNotFound(request, message)
     else Future.successful(NotFound(page("Page not found")(home, views.html.errors.error404())))
   }
 }

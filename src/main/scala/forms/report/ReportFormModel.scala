@@ -20,7 +20,6 @@ package forms.report
 import dbrows.ContractDetailsRow
 import forms.DateRange
 import models.ContractDetails
-import org.scalactic.TripleEquals._
 import play.api.libs.json.{Json, OWrites}
 import utils.YesNo
 import utils.YesNo.{No, Yes}
@@ -36,33 +35,33 @@ object ReportConstants {
   val longComment  = 2000
   val shortComment = 500
 
-  val paymentTermsWordCount = longTerms
-  val paymentTermsCharCount = paymentTermsWordCount * averageWordLength
+  val paymentTermsWordCount: Int = longTerms
+  val paymentTermsCharCount: Int = paymentTermsWordCount * averageWordLength
 
-  val maxContractPeriodCommentWordCount = shortComment
-  val maxContractPeriodCommentCharCount = maxContractPeriodCommentWordCount * averageWordLength
+  val maxContractPeriodCommentWordCount: Int = shortComment
+  val maxContractPeriodCommentCharCount: Int = maxContractPeriodCommentWordCount * averageWordLength
 
-  val paymentTermsCommentWordCount = shortComment
-  val paymentTermsCommentCharCount = paymentTermsCommentWordCount * averageWordLength
+  val paymentTermsCommentWordCount: Int = shortComment
+  val paymentTermsCommentCharCount: Int = paymentTermsCommentWordCount * averageWordLength
 
-  val disputeResolutionWordCount = longComment
-  val disputeResolutionCharCount = disputeResolutionWordCount * averageWordLength
+  val disputeResolutionWordCount: Int = longComment
+  val disputeResolutionCharCount: Int = disputeResolutionWordCount * averageWordLength
 
-  val paymentTermsChangedWordCount = shortComment
-  val paymentTermsChangedCharCount = paymentTermsChangedWordCount * averageWordLength
+  val paymentTermsChangedWordCount: Int = shortComment
+  val paymentTermsChangedCharCount: Int = paymentTermsChangedWordCount * averageWordLength
 
-  val paymentTermsNotifiedWordCount = shortComment
-  val paymentTermsNotifiedCharCount = paymentTermsNotifiedWordCount * averageWordLength
+  val paymentTermsNotifiedWordCount: Int = shortComment
+  val paymentTermsNotifiedCharCount: Int = paymentTermsNotifiedWordCount * averageWordLength
 
-  val paymentCodesWordCount = 35
-  val paymentCodesCharCount = paymentCodesWordCount * averageWordLength
+  val paymentCodesWordCount      = 35
+  val paymentCodesCharCount: Int = paymentCodesWordCount * averageWordLength
 }
 
 case class ConditionalText(yesNo: YesNo, text: Option[String]) {
-  def normalize = this match {
-    case ConditionalText(No, _)                           => ConditionalText(No, None)
-    case ConditionalText(Yes, Some(t)) if t.trim() === "" => ConditionalText(Yes, None)
-    case _                                                => this
+  def normalize: ConditionalText = this match {
+    case ConditionalText(No, _)                          => ConditionalText(No, None)
+    case ConditionalText(Yes, Some(t)) if t.trim() == "" => ConditionalText(Yes, None)
+    case _                                               => this
   }
 
   def isDefined: Boolean = yesNo.toBoolean
@@ -106,7 +105,7 @@ case class PaymentTermsChanged(comment: ConditionalText, notified: Option[Condit
   /**
     * If the answer to the comment question is No then remove any answer to the Notified question
     */
-  def normalise = this match {
+  def normalise: PaymentTermsChanged = this match {
     case PaymentTermsChanged(c@ConditionalText(No, _), _) => PaymentTermsChanged(c, None)
     case _                                                => this
   }
@@ -139,7 +138,7 @@ object PaymentTerms {
   def pt(row: ContractDetailsRow): PaymentTermsChanged = {
     val comment = ConditionalText(row.paymentTermsChangedComment)
     val notified =
-      if (comment.yesNo === Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
+      if (comment.yesNo == Yes) Some(ConditionalText(row.paymentTermsChangedNotifiedComment))
       else None
 
     PaymentTermsChanged(comment, notified)

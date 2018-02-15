@@ -18,7 +18,6 @@
 package forms
 
 import org.joda.time.{LocalDate, Months}
-import org.scalactic.TripleEquals._
 import play.api.libs.json.{Json, OFormat}
 
 case class DateRange(startDate: LocalDate, endDate: LocalDate) {
@@ -32,7 +31,7 @@ case class DateRange(startDate: LocalDate, endDate: LocalDate) {
     * last day of the month if needed. E.g. 28 Feb + 6 months would give 31 August, not 28th August.
     */
   def addMonthsWithStickyEnd(input: LocalDate, months: Int): LocalDate = {
-    if (input.getDayOfMonth === input.dayOfMonth().withMaximumValue().getDayOfMonth)
+    if (input.getDayOfMonth == input.dayOfMonth().withMaximumValue().getDayOfMonth)
       input.plusMonths(months).dayOfMonth().withMaximumValue()
     else
       input.plusMonths(months)

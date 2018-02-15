@@ -32,12 +32,13 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
       case Some(ch) =>
         bind(classOf[CompaniesHouseConfig]).toInstance(ch)
         bind(classOf[CompanySearchService]).to(classOf[CompaniesHouseSearch])
-      case None =>
+      case None     =>
         Logger.debug("Wiring in Company Search Mock")
         bind(classOf[CompanySearchService]).to(classOf[MockCompanySearch])
     }
 
     bind(classOf[PageConfig]).toInstance(config.pageConfig)
+    bind(classOf[ApiConfig]).toInstance(config.apiConfig)
 
     bind(classOf[ServiceConfig]).toInstance(config.service.getOrElse(ServiceConfig.empty))
   }
