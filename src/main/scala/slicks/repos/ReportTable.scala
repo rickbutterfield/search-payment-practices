@@ -44,18 +44,10 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   //noinspection TypeAnnotation
   def activeReportByIdQ(reportId: Rep[ReportId]) = activeReportQuery.filter(_._1.id === reportId)
 
-  //noinspection TypeAnnotation
-  def archivedReportByIdQ(reportId: Rep[ReportId]) = archivedReportQuery.filter(_._1.id === reportId)
-
   val activeReportByIdC   = Compiled(activeReportByIdQ _)
-  val archivedReportByIdC = Compiled(archivedReportByIdQ _)
 
   override def find(id: ReportId): Future[Option[Report]] = db.run {
     activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
-  }
-
-  def findArchived(id: ReportId): Future[Option[Report]] = db.run {
-    archivedReportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
   //noinspection TypeAnnotation
@@ -79,28 +71,4 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   }
 
   override def count: Future[Int] = db.run(activeReportQuery.length.result)
-
-  override def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
-    find(id).flatMap {
-      case Some(report) => db.run {
-        for {
-          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(Some(timestamp))
-          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
-        } yield updateCount
-      }
-
-      case None => Future.successful(0)
-    }
-
-  override def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int] =
-    findArchived(id).flatMap {
-      case Some(report) => db.run {
-        for {
-          updateCount <- reportTable.filter(_.id === report.id).map(_.archivedOn).update(None)
-          _ <- commentTable += CommentRow(CommentId(0), id, comment, timestamp)
-        } yield updateCount
-      }
-
-      case None => Future.successful(0)
-    }
 }

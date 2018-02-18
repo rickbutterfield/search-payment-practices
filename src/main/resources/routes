@@ -19,5 +19,3 @@ GET         /export/csv                         controllers.DownloadController.e
 GET         /reports                            controllers.ReportsController.reports
 GET         /reports/count                      controllers.ReportsController.count
 GET         /reports/:reportId                  controllers.ReportsController.report(reportId: ReportId)
-POST        /reports/:reportId/archive          controllers.ReportsController.archive(reportId: ReportId)
-POST        /reports/:reportId/unarchive        controllers.ReportsController.unarchive(reportId: ReportId)

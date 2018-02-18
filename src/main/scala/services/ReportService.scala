@@ -31,6 +31,4 @@ trait ReportService {
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
   def list(cutoffDate: LocalDate): Publisher[Report]
   def count: Future[Int]
-  def archive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int]
-  def unarchive(id: ReportId, timestamp: LocalDateTime, comment: String): Future[Int]
 }

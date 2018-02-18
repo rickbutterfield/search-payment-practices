@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.Inject
 
-import actions.{ApiAction, ProtectedApiAction}
+import actions.ApiAction
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
 import models.ReportId
@@ -40,8 +40,7 @@ object ArchiveRequest {
 
 class ReportsController @Inject()(
   val reportService: ReportService,
-  apiAction: ApiAction,
-  protectedAction: ProtectedApiAction
+  apiAction: ApiAction
 )(implicit val ec: ExecutionContext)
   extends Controller {
   //noinspection TypeAnnotation
@@ -65,27 +64,6 @@ class ReportsController @Inject()(
     reportService.find(reportId).map {
       case Some(report) => Ok(Json.toJson(report))
       case None         => NotFound
-    }
-  }
-
-  //noinspection TypeAnnotation
-  def archive(reportId: ReportId) = protectedAction.async(BodyParsers.parse.json[ArchiveRequest]) { implicit request =>
-    val timestamp = request.body.timestamp.getOrElse(LocalDateTime.now)
-    val comment = request.body.comment.getOrElse(s"Archived via an api call.")
-
-    reportService.archive(reportId, timestamp, comment).map {
-      case 1 => NoContent
-      case _ => NotFound
-    }
-  }
-  //noinspection TypeAnnotation
-  def unarchive(reportId: ReportId) = protectedAction.async(BodyParsers.parse.json[ArchiveRequest]) { implicit request =>
-    val timestamp = request.body.timestamp.getOrElse(LocalDateTime.now)
-    val comment = request.body.comment.getOrElse(s"Un-archived via an api call.")
-
-    reportService.unarchive(reportId, timestamp, comment).map {
-      case 1 => NoContent
-      case _ => NotFound
     }
   }
 }

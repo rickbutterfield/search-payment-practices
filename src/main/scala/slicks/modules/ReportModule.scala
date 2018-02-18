@@ -50,7 +50,6 @@ trait ReportModule  {
     def endDate = column[LocalDate]("end_date")
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
     def archivedOn = column[Option[LocalDateTime]]("archived_on")
-    def archiveComment = column[Option[String]]("archive_comment")
 
     def * = (id,
       companyName,

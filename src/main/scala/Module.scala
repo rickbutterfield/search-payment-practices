@@ -38,8 +38,6 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
     }
 
     bind(classOf[PageConfig]).toInstance(config.pageConfig)
-    bind(classOf[ApiConfig]).toInstance(config.apiConfig)
-
     bind(classOf[ServiceConfig]).toInstance(config.service.getOrElse(ServiceConfig.empty))
   }
 }

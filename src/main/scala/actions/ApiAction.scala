@@ -19,8 +19,6 @@ package actions
 
 import javax.inject.Inject
 
-import config.ApiConfig
-import play.api.Logger
 import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,30 +31,4 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApiAction @Inject()(implicit ec: ExecutionContext) extends ActionBuilder[Request] {
   override def invokeBlock[A](request: Request[A], body: Request[A] => Future[Result]): Future[Result] =
     body(request).map(_.withHeaders("Access-Control-Allow-Origin" -> "*"))
-}
-
-class ProtectedApiAction @Inject()(apiConfig: ApiConfig)(implicit ec: ExecutionContext) extends ActionBuilder[Request] {
-
-  import Results.Unauthorized
-
-  override def invokeBlock[A](request: Request[A], body: Request[A] => Future[Result]): Future[Result] = {
-    Logger.debug(s"configured api token is: ${apiConfig.token}")
-    val auth = request.headers.get("Authorization")
-    Logger.debug(s"auth header is $auth")
-    (auth, apiConfig.token) match {
-      case (Some(Bearer(suppliedToken)), Some(configuredToken)) if suppliedToken == configuredToken =>
-        body(request).map(_.withHeaders("Access-Control-Allow-Origin" -> "*"))
-
-      case _ => Future.successful(Unauthorized)
-    }
-  }
-}
-
-object Bearer {
-  private val BearerExpr = "Bearer ([\\w.~+/-]+)".r
-
-  def unapply(s: String): Option[String] = s match {
-    case BearerExpr(token) => Some(token)
-    case _                 => None
-  }
 }
