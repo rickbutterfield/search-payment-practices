@@ -23,20 +23,14 @@ import actions.ApiAction
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
 import models.ReportId
-import org.joda.time.{LocalDate, LocalDateTime}
+import org.joda.time.LocalDate
 import play.api.http.HttpEntity
+import play.api.libs.json.Json
 import play.api.libs.json.Json._
-import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import services._
 
 import scala.concurrent.ExecutionContext
-
-case class ArchiveRequest(timestamp: Option[LocalDateTime], comment: Option[String])
-object ArchiveRequest {
-  implicit val jodaDateReads: Reads[LocalDateTime]  = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ").map(_.toLocalDateTime)
-  implicit val reads        : Reads[ArchiveRequest] = Json.reads
-}
 
 class ReportsController @Inject()(
   val reportService: ReportService,
