@@ -18,5 +18,3 @@
 package models
 
 case class ReportId(id: Long) extends AnyVal
-
-case class CommentId(id: Long) extends AnyVal

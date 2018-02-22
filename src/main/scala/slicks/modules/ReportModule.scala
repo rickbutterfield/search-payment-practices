@@ -18,12 +18,12 @@
 package slicks.modules
 
 import com.wellfactored.slickgen.IdType
-import dbrows.{CommentRow, _}
-import models.{CommentId, CompaniesHouseId, ReportId}
+import dbrows._
+import models.{CompaniesHouseId, ReportId}
 import org.joda.time.{LocalDate, LocalDateTime}
 import utils.YesNo
 
-trait ReportModule  {
+trait ReportModule {
   self: CoreModule =>
 
   import forms.report.ReportConstants._
@@ -31,7 +31,6 @@ trait ReportModule  {
 
   implicit def yesNoMapper: BaseColumnType[YesNo] = MappedColumnType.base[YesNo, Boolean](_.toBoolean, YesNo.fromBoolean)
   implicit def reportIdMapper: BaseColumnType[ReportId] = MappedColumnType.base[ReportId, Long](_.id, ReportId)
-  implicit def commentIdMapper: BaseColumnType[CommentId] = MappedColumnType.base[CommentId, Long](_.id, CommentId)
   implicit def companiesHouseIdMapper: BaseColumnType[CompaniesHouseId] = MappedColumnType.base[CompaniesHouseId, String](_.id, CompaniesHouseId)
 
   type ReportQuery = Query[ReportTable, ReportRow, Seq]
@@ -117,22 +116,6 @@ trait ReportModule  {
   }
 
   lazy val contractDetailsTable = TableQuery[ContractDetailsTable]
-
-  type CommentQuery = Query[CommentTable, CommentRow, Seq]
-
-  class CommentTable(tag: Tag) extends Table[CommentRow](tag, "comment") {
-    def id = column[CommentId]("id", O.Length(IdType.length), O.PrimaryKey, O.AutoInc)
-
-    def reportId = column[ReportId](reportIdColumnName, O.Length(IdType.length), O.Unique)
-    def reportIdFK = foreignKey("comment_report_fk", reportId, reportTable)(_.id, onDelete = ForeignKeyAction.Cascade)
-
-    def comment = column[String]("comment")
-    def timestamp = column[LocalDateTime]("timestamp")
-
-    def * = (id, reportId, comment, timestamp) <> (CommentRow.tupled, CommentRow.unapply)
-  }
-
-  lazy val commentTable = TableQuery[CommentTable]
 
 }
 

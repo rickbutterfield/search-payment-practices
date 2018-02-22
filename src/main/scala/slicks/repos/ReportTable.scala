@@ -19,9 +19,8 @@ package slicks.repos
 
 import javax.inject.Inject
 
-import dbrows.CommentRow
-import models.{CommentId, CompaniesHouseId, Report, ReportId}
-import org.joda.time.{LocalDate, LocalDateTime}
+import models.{CompaniesHouseId, Report, ReportId}
+import org.joda.time.LocalDate
 import org.reactivestreams.Publisher
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import services.ReportService
@@ -44,7 +43,7 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
   //noinspection TypeAnnotation
   def activeReportByIdQ(reportId: Rep[ReportId]) = activeReportQuery.filter(_._1.id === reportId)
 
-  val activeReportByIdC   = Compiled(activeReportByIdQ _)
+  val activeReportByIdC = Compiled(activeReportByIdQ _)
 
   override def find(id: ReportId): Future[Option[Report]] = db.run {
     activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
