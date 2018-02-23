@@ -18,43 +18,44 @@
 package dbrows
 
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, LocalDateTime}
 import utils.YesNo
 
 case class ReportRow(
-                      id: ReportId,
+  id: ReportId,
 
-                      companyName: String,
-                      companyId: CompaniesHouseId,
-                      filingDate: LocalDate,
-                      approvedBy: String,
-                      confirmationEmailAddress: String,
-                      startDate: LocalDate,
-                      endDate: LocalDate,
-                      paymentCodes: Option[String]
-                    )
+  companyName: String,
+  companyId: CompaniesHouseId,
+  filingDate: LocalDate,
+  approvedBy: String,
+  confirmationEmailAddress: String,
+  startDate: LocalDate,
+  endDate: LocalDate,
+  paymentCodes: Option[String],
+  archivedOn: Option[LocalDateTime] = None
+)
 
 case class ContractDetailsRow(
-                               reportId: ReportId,
+  reportId: ReportId,
 
-                               paymentTerms: String,
-                               shortestPaymentPeriod: Int,
-                               longestPaymentPeriod: Option[Int],
-                               maximumContractPeriod: Int,
-                               maximumContractPeriodComment: Option[String],
-                               paymentTermsChangedComment: Option[String],
-                               paymentTermsChangedNotifiedComment: Option[String],
-                               paymentTermsComment: Option[String],
-                               disputeResolution: String,
+  paymentTerms: String,
+  shortestPaymentPeriod: Int,
+  longestPaymentPeriod: Option[Int],
+  maximumContractPeriod: Int,
+  maximumContractPeriodComment: Option[String],
+  paymentTermsChangedComment: Option[String],
+  paymentTermsChangedNotifiedComment: Option[String],
+  paymentTermsComment: Option[String],
+  disputeResolution: String,
 
-                               offerEInvoicing: YesNo,
-                               offerSupplyChainFinance: YesNo,
-                               retentionChargesInPolicy: YesNo,
-                               retentionChargesInPast: YesNo,
+  offerEInvoicing: YesNo,
+  offerSupplyChainFinance: YesNo,
+  retentionChargesInPolicy: YesNo,
+  retentionChargesInPast: YesNo,
 
-                               averageDaysToPay: Int,
-                               percentPaidLaterThanAgreedTerms: Int,
-                               percentInvoicesWithin30Days: Int,
-                               percentInvoicesWithin60Days: Int,
-                               percentInvoicesBeyond60Days: Int
-                             )
+  averageDaysToPay: Int,
+  percentPaidLaterThanAgreedTerms: Int,
+  percentInvoicesWithin30Days: Int,
+  percentInvoicesWithin60Days: Int,
+  percentInvoicesBeyond60Days: Int
+)

@@ -20,7 +20,6 @@ package services.mocks
 import javax.inject.Inject
 
 import models.{CompaniesHouseId, CompanyDetail, PagedResults}
-import org.scalactic.TripleEquals._
 import services.{CompanySearchResult, CompanySearchService}
 
 import scala.concurrent.duration.Duration
@@ -38,6 +37,6 @@ class MockCompanySearch @Inject()(implicit ec: ExecutionContext) extends Company
   }
 
   override def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]] = Future {
-    companies.find(_.companiesHouseId === companiesHouseId).map(r => CompanyDetail(r.companiesHouseId, r.companyName))
+    companies.find(_.companiesHouseId == companiesHouseId).map(r => CompanyDetail(r.companiesHouseId, r.companyName))
   }
 }

@@ -40,19 +40,21 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
 
   import profile.api._
 
-  def reportByIdQ(reportId: Rep[ReportId]) = reportQuery.filter(_._1.id === reportId)
+  //noinspection TypeAnnotation
+  def activeReportByIdQ(reportId: Rep[ReportId]) = activeReportQuery.filter(_._1.id === reportId)
 
-  val reportByIdC = Compiled(reportByIdQ _)
+  val activeReportByIdC = Compiled(activeReportByIdQ _)
 
-  def find(id: ReportId): Future[Option[Report]] = db.run {
-    reportByIdC(id).result.headOption.map(_.map(Report.apply))
+  override def find(id: ReportId): Future[Option[Report]] = db.run {
+    activeReportByIdC(id).result.headOption.map(_.map(Report.apply))
   }
 
-  def reportByCoNoQ(cono: Rep[CompaniesHouseId]) = reportQuery.filter(_._1.companyId === cono)
+  //noinspection TypeAnnotation
+  def activeReportByCoNoQ(cono: Rep[CompaniesHouseId]) = activeReportQuery.filter(_._1.companyId === cono)
 
-  val reportByCoNoC = Compiled(reportByCoNoQ _)
+  val reportByCoNoC = Compiled(activeReportByCoNoQ _)
 
-  def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
+  override def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]] = db.run {
     reportByCoNoC(companiesHouseId).result.map(_.map(Report.apply))
   }
 
@@ -60,12 +62,12 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/
     */
-  def list(cutoffDate: LocalDate): Publisher[Report] = {
+  override def list(cutoffDate: LocalDate): Publisher[Report] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
-    val action = reportQueryC.result.withStatementParameters(fetchSize = 10000)
+    val action = activeReportQueryC.result.withStatementParameters(fetchSize = 10000)
 
     db.stream(disableAutocommit andThen action).mapResult(Report.apply)
   }
 
-  def count: Future[Int] = db.run(reportTable.length.result)
+  override def count: Future[Int] = db.run(activeReportQuery.length.result)
 }

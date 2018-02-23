@@ -21,8 +21,8 @@ import com.wellfactored.playbindings.ValueClassFormats
 import dbrows.{ContractDetailsRow, ReportRow}
 import forms.DateRange
 import forms.report._
-import org.joda.time.LocalDate
-import play.api.libs.json.{Json, OWrites}
+import org.joda.time.{DateTime, LocalDate}
+import play.api.libs.json.{Json, OWrites, Writes}
 import utils.YesNo
 
 case class Report(
@@ -30,6 +30,7 @@ case class Report(
   companyName: String,
   companyId: CompaniesHouseId,
   filingDate: LocalDate,
+  archivedOn: Option[DateTime],
 
   approvedBy: String,
   confirmationEmailAddress: String,
@@ -41,7 +42,8 @@ case class Report(
 )
 
 object Report extends ValueClassFormats {
-  implicit val write: OWrites[Report] = Json.writes[Report]
+  implicit val jodaDateReads: Writes[DateTime] = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+  implicit val write        : OWrites[Report]  = Json.writes[Report]
 
   def apply(r: (ReportRow, Option[ContractDetailsRow])): Report = {
     val (reportRow, contractDetailsRow) = r
@@ -51,6 +53,7 @@ object Report extends ValueClassFormats {
       companyName,
       companyId,
       filingDate,
+      archivedOn.map(_.toDateTime),
       approvedBy,
       confirmationEmailAddress,
       DateRange(startDate, endDate),

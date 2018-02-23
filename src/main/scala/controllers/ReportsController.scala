@@ -27,7 +27,7 @@ import org.joda.time.LocalDate
 import play.api.http.HttpEntity
 import play.api.libs.json.Json
 import play.api.libs.json.Json._
-import play.api.mvc.{Controller, ResponseHeader, Result}
+import play.api.mvc._
 import services._
 
 import scala.concurrent.ExecutionContext

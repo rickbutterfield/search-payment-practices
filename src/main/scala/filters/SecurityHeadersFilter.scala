@@ -20,7 +20,6 @@ package filters
 import javax.inject.Inject
 
 import akka.stream.Materializer
-import org.scalactic.TripleEquals._
 import play.api.mvc.{Filter, RequestHeader, Result}
 import play.api.{Environment, Mode}
 
@@ -29,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SecurityHeadersFilter @Inject()(env: Environment)(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
 
   override def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
-    if (env.mode === Mode.Prod) {
+    if (env.mode == Mode.Prod) {
       next(rh).map { result =>
         result.withHeaders(
           "X-XSS-Protection" -> "1; mode=block",

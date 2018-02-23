@@ -20,10 +20,10 @@ package slicks.modules
 import com.wellfactored.slickgen.IdType
 import dbrows._
 import models.{CompaniesHouseId, ReportId}
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, LocalDateTime}
 import utils.YesNo
 
-trait ReportModule  {
+trait ReportModule {
   self: CoreModule =>
 
   import forms.report.ReportConstants._
@@ -48,6 +48,7 @@ trait ReportModule  {
     def startDate = column[LocalDate]("start_date")
     def endDate = column[LocalDate]("end_date")
     def paymentCodes = column[Option[String]]("payment_codes", O.Length(paymentCodesCharCount))
+    def archivedOn = column[Option[LocalDateTime]]("archived_on")
 
     def * = (id,
       companyName,
@@ -57,7 +58,8 @@ trait ReportModule  {
       confirmationEmailAddress,
       startDate,
       endDate,
-      paymentCodes
+      paymentCodes,
+      archivedOn
     ) <> (ReportRow.tupled, ReportRow.unapply)
   }
 

@@ -19,7 +19,7 @@ package services
 
 import com.google.inject.ImplementedBy
 import models.{CompaniesHouseId, Report, ReportId}
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, LocalDateTime}
 import org.reactivestreams.Publisher
 import slicks.repos.ReportTable
 
@@ -28,11 +28,7 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[ReportTable])
 trait ReportService {
   def find(id: ReportId): Future[Option[Report]]
-
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
-
   def list(cutoffDate: LocalDate): Publisher[Report]
-
   def count: Future[Int]
-
 }

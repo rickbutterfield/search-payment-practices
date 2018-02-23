@@ -18,7 +18,6 @@
 package controllers
 
 import config.{GoogleAnalyticsConfig, PageConfig}
-import org.scalactic.TripleEquals._
 import play.api.data.Form
 import play.api.mvc.{Call, RequestHeader}
 import play.twirl.api.Html
@@ -53,7 +52,7 @@ trait PageHelper {
   def h1(text: String) = views.html.shared._h1(Html(text))
 
   val homeBreadcrumb = Breadcrumb(routes.SearchController.search(None, None, None), "Search published reports")
-  val home = breadcrumbs(homeBreadcrumb)
+  val home: Html     = breadcrumbs(homeBreadcrumb)
 
   def breadcrumbs(crumbs: Breadcrumb*): Html = views.html.shared._breadcrumbs(crumbs)
 
@@ -61,7 +60,7 @@ trait PageHelper {
     * If all the fields are empty then don't report any errors
     */
   def discardErrorsIfEmpty[T](form: Form[T]): Form[T] =
-    if (form.data.exists(_._2 !== "")) form else form.discardingErrors
+    if (form.data.exists(_._2 != "")) form else form.discardingErrors
 
-  val todo = controllers.routes.Default.todo()
+  val todo: Call = controllers.routes.Default.todo()
 }
