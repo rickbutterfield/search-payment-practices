@@ -67,10 +67,36 @@ object ReportCSV {
     ("Filing date", _.filingDate),
     ("Company", _.companyName),
     ("Company number", _.companyId.id),
-    ("Average time to pay", _.contractDetails.map(_.paymentHistory.averageDaysToPay)),
-    ("% Invoices paid within 30 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentWithin30Days)),
-    ("% Invoices paid within 60 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentWithin60Days)),
-    ("% Invoices paid later than 60 days", _.contractDetails.map(_.paymentHistory.percentageSplit.percentBeyond60Days)),
+    ("Payments made in the reporting period", _.contractDetails.map(cd =>
+      if(cd.paymentHistory.didMakePayment.isDefined)
+        cd.paymentHistory.didMakePayment.get.toBoolean.toString
+      else
+        ""
+    )),
+    ("Average time to pay", _.contractDetails.map(cd =>
+      if(!cd.paymentHistory.didMakePayment.isDefined || cd.paymentHistory.didMakePayment.contains(YesNo.Yes))
+        cd.paymentHistory.averageDaysToPay.toString
+      else
+        ""
+    )),
+    ("% Invoices paid within 30 days", _.contractDetails.map(cd =>
+      if(!cd.paymentHistory.didMakePayment.isDefined || cd.paymentHistory.didMakePayment.contains(YesNo.Yes))
+        cd.paymentHistory.percentageSplit.percentWithin30Days.toString
+      else
+        ""
+    )),
+    ("% Invoices paid within 60 days", _.contractDetails.map(cd =>
+      if(!cd.paymentHistory.didMakePayment.isDefined || cd.paymentHistory.didMakePayment.contains(YesNo.Yes))
+        cd.paymentHistory.percentageSplit.percentWithin60Days.toString
+      else
+        ""
+    )),
+    ("% Invoices paid later than 60 days", _.contractDetails.map(cd =>
+      if(!cd.paymentHistory.didMakePayment.isDefined || cd.paymentHistory.didMakePayment.contains(YesNo.Yes))
+        cd.paymentHistory.percentageSplit.percentBeyond60Days.toString
+      else
+        ""
+    )),
     ("% Invoices not paid within agreed terms", _.contractDetails.map(_.paymentHistory.percentPaidLaterThanAgreedTerms)),
     ("Shortest (or only) standard payment period", _.contractDetails.map(_.paymentTerms.shortestPaymentPeriod)),
     ("Longest standard payment period", _.contractDetails.flatMap(_.paymentTerms.longestPaymentPeriod)),
