@@ -85,7 +85,7 @@ object ReportCSV {
       else
         ""
     )),
-    ("% Invoices paid within 60 days", _.contractDetails.map(cd =>
+    ("% Invoices paid between 31 and 60 days", _.contractDetails.map(cd =>
       if(!cd.paymentHistory.didMakePayment.isDefined || cd.paymentHistory.didMakePayment.contains(YesNo.Yes))
         cd.paymentHistory.percentageSplit.percentWithin60Days.toString
       else
@@ -100,7 +100,7 @@ object ReportCSV {
     ("% Invoices not paid within agreed terms", _.contractDetails.map(_.paymentHistory.percentPaidLaterThanAgreedTerms)),
     ("Shortest (or only) standard payment period", _.contractDetails.map(_.paymentTerms.shortestPaymentPeriod)),
     ("Longest standard payment period", _.contractDetails.flatMap(_.paymentTerms.longestPaymentPeriod)),
-    ("Maximum Contract Length", _.contractDetails.map(_.paymentTerms.maximumContractPeriod)),
+    ("Maximum contractual payment period", _.contractDetails.map(_.paymentTerms.maximumContractPeriod)),
     ("Payment terms have changed", _.contractDetails.map(_.paymentTerms.paymentTermsChanged.comment.isDefined)),
     ("Suppliers notified of changes", _.contractDetails.flatMap(_.paymentTerms.paymentTermsChanged.notified.map(_.isDefined))),
     ("Participates in payment codes", _.paymentCodes.isDefined),
