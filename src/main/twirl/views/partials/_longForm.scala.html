@@ -2,6 +2,12 @@
 
 <h3 class="heading-medium">Payment statistics</h3>
 
+@if(longForm.paymentHistory.didMakePayment.isDefined && longForm.paymentHistory.didMakePayment.contains(utils.YesNo.No)) {
+<div class="panel">
+    <p>This company stated that it entered into qualifying contracts in the reporting period, but did not make any payments.</p>
+</div>
+}
+
 @if(!longForm.paymentHistory.didMakePayment.isDefined || longForm.paymentHistory.didMakePayment.contains(utils.YesNo.Yes)) {
 <p>Average time taken to pay invoices: <span class="datum">@longForm.paymentHistory.averageDaysToPay days</span></p>
 
