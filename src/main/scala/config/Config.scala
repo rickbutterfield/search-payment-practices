@@ -36,10 +36,13 @@ object GoogleAnalyticsConfig {
   val empty = GoogleAnalyticsConfig(None)
 }
 
-case class ServiceConfig(startDate: Option[LocalDate], rootRedirectURL: Option[String])
+case class ServiceConfig(
+  startDate: Option[LocalDate],
+  rootRedirectURL: Option[String],
+  maintenance: Option[Boolean])
 
 object ServiceConfig {
-  val empty                   = ServiceConfig(None, None)
+  val empty                   = ServiceConfig(None, None, None)
   val defaultServiceStartDate = new LocalDate(2017, 4, 6)
 }
 
