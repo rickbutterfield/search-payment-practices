@@ -1,6 +1,8 @@
 @(longForm: ContractDetails, paymentCodes: forms.report.ConditionalText)
 
 <h3 class="heading-medium">Payment statistics</h3>
+
+@if(!longForm.paymentHistory.didMakePayment.isDefined || longForm.paymentHistory.didMakePayment.contains(utils.YesNo.Yes)) {
 <p>Average time taken to pay invoices: <span class="datum">@longForm.paymentHistory.averageDaysToPay days</span></p>
 
 <p>
@@ -11,6 +13,8 @@
     <li>in 31 to 60 days: <span class="datum">@longForm.paymentHistory.percentageSplit.percentWithin60Days%</span></li>
     <li>in 61 days or more: <span class="datum">@longForm.paymentHistory.percentageSplit.percentBeyond60Days%</span></li>
 </ul>
+}
+
 
 <p>Invoices due but not paid within agreed terms: <span class="datum">@longForm.paymentHistory.percentPaidLaterThanAgreedTerms
     %</span></p>

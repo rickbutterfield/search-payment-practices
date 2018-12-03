@@ -89,6 +89,7 @@ object PercentageSplit {
 }
 
 case class PaymentHistory(
+  didMakePayment: Option[YesNo],
   averageDaysToPay: Int,
   percentPaidLaterThanAgreedTerms: Int,
   percentageSplit: PercentageSplit
@@ -98,7 +99,7 @@ object PaymentHistory {
   implicit val writes: OWrites[PaymentHistory] = Json.writes[PaymentHistory]
 
   def apply(row: ContractDetailsRow): PaymentHistory =
-    PaymentHistory(row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
+    PaymentHistory(row.didMakePayment, row.averageDaysToPay, row.percentPaidLaterThanAgreedTerms, PercentageSplit(row.percentInvoicesWithin30Days, row.percentInvoicesWithin60Days, row.percentInvoicesBeyond60Days))
 }
 
 case class PaymentTermsChanged(comment: ConditionalText, notified: Option[ConditionalText]) {

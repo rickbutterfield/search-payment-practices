@@ -75,7 +75,7 @@ object Report extends ValueClassFormats {
         paymentTermsComment,
         disputeResolution
       ),
-      PaymentHistory(averageDaysToPay, percentPaidLaterThanAgreedTerms, PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days)),
+      PaymentHistory(didMakePayment, averageDaysToPay, percentPaidLaterThanAgreedTerms, PercentageSplit(percentInvoicesWithin30Days, percentInvoicesWithin60Days, percentInvoicesBeyond60Days)),
       offerEInvoicing,
       offerSupplyChainFinance,
       retentionChargesInPolicy,

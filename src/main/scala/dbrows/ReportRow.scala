@@ -57,5 +57,6 @@ case class ContractDetailsRow(
   percentPaidLaterThanAgreedTerms: Int,
   percentInvoicesWithin30Days: Int,
   percentInvoicesWithin60Days: Int,
-  percentInvoicesBeyond60Days: Int
+  percentInvoicesBeyond60Days: Int,
+  didMakePayment: Option[YesNo]
 )
