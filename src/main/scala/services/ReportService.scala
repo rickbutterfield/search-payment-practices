@@ -29,6 +29,7 @@ import scala.concurrent.Future
 trait ReportService {
   def find(id: ReportId): Future[Option[Report]]
   def byCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Seq[Report]]
+  def countByCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Int]
   def list(cutoffDate: LocalDate): Publisher[Report]
   def count: Future[Int]
 }

@@ -29,7 +29,7 @@ import services._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
-class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseConfig)(implicit val ec: ExecutionContext)
+class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseConfig, reportService: ReportService)(implicit val ec: ExecutionContext)
   extends RestService with CompanySearchService {
 
   import CompaniesHouseModels._
@@ -39,20 +39,27 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
   def targetScope(companiesHouseId: CompaniesHouseId): String = s"https://api.companieshouse.gov.uk/company/${companiesHouseId.id}"
 
   // CoHo search api returns a 416 response if we try to retrieve results above number 400
-  private val maxResultIndex = 400
+  private val maxResultIndex = 100
 
-  override def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Option[Duration]): Future[PagedResults[CompanySearchResult]] = {
+  override def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Duration): Future[PagedResults[CompanySearchResult]] = {
     val s = views.html.helper.urlEncode(search)
     val maxPage = maxResultIndex / itemsPerPage
-    val startIndex = (maxPage.min(page) - 1) * itemsPerPage
-    val url = s"${config.getProtocol}://${config.getHostname}/search/companies?q=$s&items_per_page=$itemsPerPage&start_index=$startIndex"
+    val url = s"${config.getProtocol}://${config.getHostname}/search/companies?q=$s&items_per_page=$maxResultIndex"
     val start = System.currentTimeMillis()
 
     get[ResultsPage](url, basicAuth).map { resultsPage =>
       val t = System.currentTimeMillis() - start
       Logger.debug(s"Companies house search took ${t}ms")
-      val results = resultsPage.items.map(i => CompanySearchResult(i.company_number, i.title, i.address_snippet))
-      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsPage.total_results, resultLimit = Some(maxResultIndex))
+
+      var resultsWithReports = scala.concurrent.Await.result(
+        Future.sequence(
+          resultsPage.items.map(result => (result, reportService.countByCompanyNumber(result.company_number)))
+            .map{case (result, count) => count.map{count2 => (result, count2)} }), timeout).filter(i => i._2 > 0)
+
+      var results = resultsWithReports.drop((page - 1) * itemsPerPage).take(itemsPerPage)
+        .map(i => CompanySearchResult(i._1.company_number, i._1.title, i._1.address_snippet, i._2))
+
+      PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsWithReports.size, resultLimit = Some(maxResultIndex))
     }
   }
 

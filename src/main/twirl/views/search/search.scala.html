@@ -3,7 +3,6 @@
     searchTerm: String,
     errorMessage: Option[String],
     resultsO: Option[PagedResults[services.CompanySearchResult]],
-    counts: Map[CompaniesHouseId, Int],
     searchLink: String,
     companyLink: models.CompaniesHouseId => String,
     pageLink: Int => String,
@@ -32,7 +31,7 @@
                                     @results.effectiveTotal @(if(results.effectiveTotal == 1) "match" else "matches") found
                             </p>
                             @for(result <- results.items) {
-                                @views.html.shared._companySummary(result, counts.getOrElse(result.companiesHouseId, 0), companyLink(result.companiesHouseId))
+                                @views.html.shared._companySummary(result, companyLink(result.companiesHouseId))
                             }
                         </ul>
                         @shared._pageLinks(results, pageLink)

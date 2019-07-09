@@ -58,6 +58,10 @@ class ReportTable @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit e
     reportByCoNoC(companiesHouseId).result.map(_.map(Report.apply))
   }
 
+  override def countByCompanyNumber(companiesHouseId: CompaniesHouseId): Future[Int] = db.run {
+    reportByCoNoC(companiesHouseId).map(_.size).result
+  }
+
   /**
     * Code to adjust fetchSize on Postgres driver taken from:
     * https://engineering.sequra.es/2016/02/database-streaming-on-play-with-slick-from-publisher-to-chunked-result/

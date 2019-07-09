@@ -60,13 +60,13 @@ class SearchController @Inject()(
 
   //noinspection TypeAnnotation
   def search(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int]) = Action.async { implicit request =>
-    def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]], countMap: Map[CompaniesHouseId, Int]): Html =
-      page(searchPageTitle)(views.html.search.search(searchHeader, q, None,  results, countMap, searchLink, companyLink(_, None), pageLink(query, itemsPerPage, _), er))
+    def resultsPage(q: String, results: Option[PagedResults[CompanySearchResult]]): Html =
+      page(searchPageTitle)(views.html.search.search(searchHeader, q, None,  results, searchLink, companyLink(_, None), pageLink(query, itemsPerPage, _), er))
 
     def resultsError(q: String, errorMessage: String) =
-      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, Some(errorMessage), None, Map(), searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
+      page(searchPageTitle)(home, views.html.search.search(searchHeader, q, Some(errorMessage), None, searchLink, companyLink(_, pageNumber), pageLink(query, itemsPerPage, _), er))
 
-    doSearch(query, pageNumber, itemsPerPage, resultsPage, resultsError, Some(20 seconds)).map(Ok(_))
+    doSearch(query, pageNumber, itemsPerPage, resultsPage, resultsError, 20 seconds).map(Ok(_))
   }
 
   //noinspection TypeAnnotation

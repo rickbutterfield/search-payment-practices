@@ -33,24 +33,26 @@ trait SearchHelper {
 
   implicit def ec: ExecutionContext
 
-  type ResultsPageFunction = (String, Option[PagedResults[CompanySearchResult]], Map[CompaniesHouseId, Int]) => Html
+  type ResultsPageFunction = (String, Option[PagedResults[CompanySearchResult]]) => Html
   type ResultsErrorFunction = (String, String) => Html
 
-  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction, resultsError: ResultsErrorFunction, timeout: Option[Duration] = None): Future[Html] = {
+  def doSearch(query: Option[String], pageNumber: Option[Int], itemsPerPage: Option[Int], resultsPage: ResultsPageFunction, resultsError: ResultsErrorFunction, timeout: Duration): Future[Html] = {
     query match {
       case Some(q) => companySearch.searchCompanies(q, pageNumber.getOrElse(1), itemsPerPage.getOrElse(25), timeout).flatMap { results =>
-        val countsF = results.items.map { result =>
-          reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.length))
-        }
+        //val countsF = results.items.map { result =>
+        //  reportService.byCompanyNumber(result.companiesHouseId).map(rs => (result.companiesHouseId, rs.length))
+        //}
 
-        Future.sequence(countsF).map(counts => resultsPage(q, Some(results), Map(counts: _*)))
+        //Future.sequence(countsF).map(counts => resultsPage(q, Some(results)))
+        //Future.sequence(countsF).map(counts => resultsPage(q, Some(results)))
+        Future.apply(resultsPage(q, Some(results)))
       }.recover {
         case NonFatal(e) =>
           Logger.warn(e.getMessage)
           resultsError(q, "We're having trouble connecting to the Companies House search service. Please try again in a few minutes.")
       }
 
-      case None => Future.successful(resultsPage("", None, Map.empty))
+      case None => Future.successful(resultsPage("", None))
     }
   }
 }

@@ -24,7 +24,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 trait CompanySearchService {
-  def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Option[Duration]): Future[PagedResults[CompanySearchResult]]
+  def searchCompanies(search: String, page: Int, itemsPerPage: Int, timeout: Duration): Future[PagedResults[CompanySearchResult]]
 
   def find(companiesHouseId: CompaniesHouseId): Future[Option[CompanyDetail]]
 }

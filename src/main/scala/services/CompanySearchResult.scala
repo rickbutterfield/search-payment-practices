@@ -19,4 +19,6 @@ package services
 
 import models.CompaniesHouseId
 
-case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: Option[String])
+import scala.concurrent.Future
+
+case class CompanySearchResult(companiesHouseId: CompaniesHouseId, companyName: String, companyAddress: Option[String], reportCount: Int)
