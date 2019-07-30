@@ -48,8 +48,8 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
     val start = System.currentTimeMillis()
 
     get[ResultsPage](url, basicAuth).map { resultsPage =>
-      val t = System.currentTimeMillis() - start
-      Logger.debug(s"Companies house search took ${t}ms")
+      val t1 = System.currentTimeMillis() - start
+      Logger.debug(s"Companies house search took ${t1}ms")
 
       var resultsWithReports = scala.concurrent.Await.result(
         Future.sequence(
@@ -58,6 +58,9 @@ class CompaniesHouseSearch @Inject()(val ws: WSClient, config: CompaniesHouseCon
 
       var results = resultsWithReports.drop((page - 1) * itemsPerPage).take(itemsPerPage)
         .map(i => CompanySearchResult(i._1.company_number, i._1.title, i._1.address_snippet, i._2))
+
+      val t2 = System.currentTimeMillis() - start
+      Logger.debug(s"Results with reports filter took ${t2}ms")
 
       PagedResults(results, resultsPage.items_per_page, resultsPage.page_number, resultsWithReports.size, resultLimit = Some(maxResultIndex))
     }
